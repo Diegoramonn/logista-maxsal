@@ -33,12 +33,14 @@
             margin: 0;
             padding: 0;
             font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         /* ---------------- TELA DE LOGIN ---------------- */
@@ -48,13 +50,14 @@
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            background: linear-gradient(135deg, #153550 0%, #1F4E78 100%);
         }
 
         .login-card {
             background-color: var(--card-bg);
             padding: 40px 32px;
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             border: 1px solid var(--border-color);
             width: 100%;
             max-width: 400px;
@@ -95,12 +98,13 @@
             border-radius: 8px;
             font-size: 14px;
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
             background-color: #FFF;
         }
 
         .form-group input:focus, .form-group select:focus {
             border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
         }
 
         .btn-primary {
@@ -112,10 +116,14 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.2s;
+            transition: opacity 0.2s, transform 0.1s;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+        }
+
+        .btn-primary:active, .btn-success:active, .btn-finish:active, .btn-secondary:active, .btn-danger:active, .btn-warning:active {
+            transform: scale(0.98);
         }
 
         .btn-primary:hover {
@@ -230,8 +238,10 @@
         .app-container {
             display: flex;
             min-height: 100vh;
+            position: relative;
         }
 
+        /* Sidebar Desktop Layout */
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--primary-dark);
@@ -243,6 +253,7 @@
             bottom: 0;
             left: 0;
             z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .sidebar-brand {
@@ -252,6 +263,9 @@
             letter-spacing: 0.5px;
             background: rgba(0, 0, 0, 0.15);
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .sidebar-brand span {
@@ -266,6 +280,7 @@
             list-style: none;
             padding: 16px 0;
             flex-grow: 1;
+            overflow-y: auto;
         }
 
         .menu-item {
@@ -321,22 +336,57 @@
             flex-grow: 1;
             padding: 32px;
             width: calc(100% - var(--sidebar-width));
+            transition: margin-left 0.3s ease, width 0.3s ease;
         }
 
         header.top-header {
             margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
         }
 
         header.top-header h1 {
             font-size: 24px;
             font-weight: 700;
             color: var(--primary-color);
+            line-height: 1.2;
         }
 
         header.top-header p {
             font-size: 14px;
             color: var(--text-muted);
             margin-top: 4px;
+        }
+
+        .mobile-nav-toggle {
+            display: none;
+            background: var(--primary-color);
+            color: #FFF;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            shrink: 0;
+        }
+
+        /* Overlay for mobile drawer */
+        #sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+            z-index: 90;
+        }
+
+        #sidebar-overlay.active {
+            display: block;
         }
 
         .kpi-grid {
@@ -381,12 +431,6 @@
             grid-template-columns: 2fr 1fr;
             gap: 20px;
             margin-bottom: 24px;
-        }
-
-        @media (max-width: 1100px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
         .chart-card {
@@ -455,6 +499,7 @@
 
         .table-wrapper {
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         table {
@@ -462,6 +507,7 @@
             border-collapse: collapse;
             text-align: left;
             font-size: 14px;
+            white-space: nowrap;
         }
 
         th {
@@ -549,7 +595,6 @@
             border-bottom: none;
         }
 
-        /* Tabela de Consolidado de Produtos no Relatório */
         .prod-summary-box {
             background-color: #EFF6FF;
             border: 1px solid #BFDBFE;
@@ -568,8 +613,115 @@
             gap: 8px;
         }
 
+        /* ---------------- STREAMING_CHUNK:CONFIGURAÇÕES PARA TELAS MENORES (RESPONSIVIDADE) ---------------- */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px 16px;
+            }
+
+            .mobile-nav-toggle {
+                display: inline-flex;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header.top-header {
+                margin-bottom: 18px;
+            }
+
+            header.top-header h1 {
+                font-size: 18px;
+            }
+
+            header.top-header p {
+                font-size: 12px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .kpi-card {
+                padding: 14px;
+            }
+
+            .kpi-value {
+                font-size: 20px;
+            }
+
+            .chart-card, .card-panel {
+                padding: 16px;
+                border-radius: 10px;
+            }
+
+            .chart-container {
+                height: 240px;
+            }
+
+            .form-grid-3 {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .product-item-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .product-item-row .btn-danger {
+                grid-column: span 2;
+                width: 100%;
+                justify-content: center;
+                display: flex;
+                margin-top: 4px;
+            }
+
+            .login-card {
+                padding: 28px 20px;
+            }
+
+            .prod-summary-box {
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-primary, .btn-success, .btn-finish, .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .product-item-row {
+                grid-template-columns: 1fr;
+            }
+
+            .product-item-row .btn-danger {
+                grid-column: span 1;
+            }
+        }
+
         @media print {
-            .sidebar, .btn-primary, .btn-secondary, .btn-danger, .btn-success, .btn-finish, .btn-logout-side, .no-print, header.top-header, .kpi-grid, .charts-grid, #modal-backdrop {
+            .sidebar, .btn-primary, .btn-secondary, .btn-danger, .btn-success, .btn-finish, .btn-logout-side, .no-print, header.top-header, .kpi-grid, .charts-grid, #modal-backdrop, .mobile-nav-toggle, #sidebar-overlay {
                 display: none !important;
             }
             .main-content {
@@ -604,8 +756,13 @@
 
     <div id="login-screen">
         <div class="login-card">
+            <div class="flex justify-center mb-3">
+                <div class="w-12 h-12 bg-blue-900 rounded-xl flex items-center justify-center text-white text-xl shadow">
+                    <i class="fa-solid fa-truck-fast"></i>
+                </div>
+            </div>
             <h1>MAXSAL</h1>
-            <p>Logístico e Operacional</p>
+            <p>Portal Logístico e Operacional</p>
             
             <div id="login-error" class="login-error">
                 Usuário ou senha incorretos!
@@ -614,29 +771,40 @@
             <form onsubmit="realizarLogin(event)">
                 <div class="form-group">
                     <label for="username">Usuário</label>
-                    <input type="text" id="username" required placeholder="ID">
+                    <input type="text" id="username" required placeholder= " ID " value="">
                 </div>
                 <div class="form-group">
                     <label for="password">Senha</label>
-                    <input type="password" id="password" required placeholder="Senha">
+                    <input type="password" id="password" required placeholder=" Senha " value="">
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px; justify-content: center;">Entrar no Sistema</button>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px; justify-content: center;">
+                    <i class="fa-solid fa-right-to-bracket mr-1"></i> Entrar no Sistema
+                </button>
             </form>
             
             <div class="login-hint">
                 
-                Site Desenvolvido por <strong>Diego ramon</strong> 
+                Site Desenvolvido por<strong> Diego Ramon</strong> 
             </div>
         </div>
     </div>
 
     <div id="dashboard-screen">
+        <!-- Overlay backdrop for mobile drawer navigation -->
+        <div id="sidebar-overlay" onclick="closeSidebarMobile()"></div>
+
         <div class="app-container">
             
-            <aside class="sidebar">
+            <!-- Sidebar Drawer Navigation -->
+            <aside class="sidebar" id="app-sidebar">
                 <div class="sidebar-brand">
-                    MAXSAL
-                    <span>Gestão Logística </span>
+                    <div>
+                        MAXSAL
+                        <span>Gestão Logística v2.0</span>
+                    </div>
+                    <button class="lg:hidden text-slate-300 hover:text-white p-1" onclick="closeSidebarMobile()" aria-label="Fechar Menu">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
                 </div>
                 <ul class="sidebar-menu">
                     <li class="menu-item active" id="menu-tab-rotas" onclick="switchTab('tab-rotas', this)">
@@ -659,14 +827,24 @@
                     </li>
                 </ul>
                 <div class="sidebar-footer">
-                    <button class="btn-logout-side" onclick="realizarLogout()">Sair do Sistema</button>
+                    <button class="btn-logout-side" onclick="realizarLogout()">
+                        <i class="fa-solid fa-right-from-bracket mr-1"></i> Sair do Sistema
+                    </button>
                 </div>
             </aside>
 
+            <!-- Main Workspace Area -->
             <main class="main-content">
                 <header class="top-header">
-                    <h1>DASHBOARD LOGÍSTICO </h1>
-                    <p>Visão geral de demandas, rotas,  saídas mensais</p>
+                    <div class="flex items-center gap-3">
+                        <button class="mobile-nav-toggle" onclick="toggleSidebarMobile()" aria-label="Abrir Menu">
+                            <i class="fa-solid fa-bars"></i>
+                        </button>
+                        <div>
+                            <h1>DASHBOARD LOGÍSTICO E OPERACIONAL</h1>
+                            <p>Visão geral de demandas, rotas, cadastros e saídas mensais</p>
+                        </div>
+                    </div>
                 </header>
 
                 <div class="kpi-grid">
@@ -844,7 +1022,6 @@
                             </div>
                         </div>
 
-                        <!-- SEÇÃO DE RESUMO / SOMA TOTAL DOS PRODUTOS DA ROTA -->
                         <div class="prod-summary-box">
                             <h3>📦 CONSOLIDADO DE PRODUTOS DA ROTA (SOMA TOTAL POR TIPO DE PRODUTO)</h3>
                             <div class="table-wrapper" style="margin-top: 10px;">
@@ -861,7 +1038,7 @@
                             </div>
                         </div>
 
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                             <h3 style="font-size: 15px; font-weight: 600; color: var(--primary-color);">Selecione os Pedidos/Clientes para Incluir no Relatório ou Colocar em Rota:</h3>
                             <span class="no-print" style="font-size: 12px; color: #64748B;">Marque os itens para "Gerar Rota", "Finalizar Rota" ou "Imprimir"</span>
                         </div>
@@ -1033,7 +1210,6 @@
         </div>
     </div>
 
-    <!-- MODAL PERSONALIZADO -->
     <div id="modal-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div id="modal-box" class="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-md w-full p-6 transform transition-all">
             <div class="flex items-center gap-3 mb-4">
@@ -1048,7 +1224,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE EDIÇÃO DE PEDIDO -->
     <div id="modal-editar-pedido" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 overflow-y-auto">
         <div class="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-2xl w-full p-6 my-8 transform transition-all max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200">
@@ -1102,510 +1277,561 @@
                 </div>
 
                 <div class="flex justify-end gap-3 pt-3 border-t border-slate-200">
-                    <button type="button" onclick="fecharModalEditarPedido()" class="px-4 py-2 text-sm font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition">Cancelar</button>
-                    <button type="submit" class="btn-primary">💾 Salvar Alterações</button>
+                    <button type="button" onclick="fecharModalEditarPedido()" class="px-4 py-2 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg">Salvar Alterações</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        let cidades = [
-            { id: 1, rota: "Rota 01", nome: "Aracaju", uf: "SE" },
-            { id: 2, rota: "Rota 01", nome: "Nossa Senhora do Socorro", uf: "SE" },
-            { id: 3, rota: "Rota 01", nome: "São Cristóvão", uf: "SE" },
-            { id: 4, rota: "Rota 02", nome: "Itabaiana", uf: "SE" },
-            { id: 5, rota: "Rota 02", nome: "Campo do Brito", uf: "SE" },
-            { id: 6, rota: "Rota 02", nome: "Macambira", uf: "SE" },
-            { id: 7, rota: "Rota 03", nome: "Estância", uf: "SE" },
-            { id: 8, rota: "Rota 03", nome: "Umbaúba", uf: "SE" },
-            { id: 9, rota: "Rota 04", nome: "Nossa Senhora da Glória", uf: "SE" },
-            { id: 10, rota: "Rota 04", nome: "Monte Alegre de Sergipe", uf: "SE" }
-        ];
+        // Database State Store
+        let state = {
+            cidades: [
+                { id: 1, rota: 'Rota 01', nome: 'Aracaju', uf: 'SE' },
+                { id: 2, rota: 'Rota 01', nome: 'Lagarto', uf: 'SE' },
+                { id: 3, rota: 'Rota 02', nome: 'Itabaiana', uf: 'SE' },
+                { id: 4, rota: 'Rota 02', nome: 'Nossa Senhora do Socorro', uf: 'SE' },
+                { id: 5, rota: 'Rota 03', nome: 'Tobias Barreto', uf: 'SE' },
+                { id: 6, rota: 'Rota 03', nome: 'Simão Dias', uf: 'SE' },
+                { id: 7, rota: 'Rota 04', nome: 'Feira de Santana', uf: 'BA' }
+            ],
+            clientes: [
+                { id: 1, nome: 'Fazenda Santa Luzia', doc: '12.345.678/0001-90', cidadeId: 1 },
+                { id: 2, nome: 'Agropecuária Boi Gordo', doc: '98.765.432/0001-10', cidadeId: 2 },
+                { id: 3, nome: 'Sítio Boa Esperança', doc: '45.123.789/0001-50', cidadeId: 3 },
+                { id: 4, nome: 'Haras Vale Verde', doc: '33.444.555/0001-22', cidadeId: 5 }
+            ],
+            produtos: [
+                { id: 1, nome: 'Sal Mineral 80', categoria: 'Sal Nutricional', peso: 30 },
+                { id: 2, nome: 'Proteinado Seca 40', categoria: 'Sal Nutricional', peso: 30 },
+                { id: 3, nome: 'Ração Bovinos Lactação 22%', categoria: 'Ração', peso: 40 },
+                { id: 4, nome: 'Farelo de Soja Tostado', categoria: 'Farelo de Soja', peso: 50 }
+            ],
+            pedidos: [
+                {
+                    id: 101,
+                    rota: 'Rota 01',
+                    cidadeId: 1,
+                    clienteId: 1,
+                    status: 'Pendente',
+                    itens: [
+                        { produtoId: 1, quantidade: 100 },
+                        { produtoId: 3, quantidade: 50 }
+                    ]
+                },
+                {
+                    id: 102,
+                    rota: 'Rota 01',
+                    cidadeId: 2,
+                    clienteId: 2,
+                    status: 'Em Rota',
+                    itens: [
+                        { produtoId: 2, quantidade: 200 }
+                    ]
+                },
+                {
+                    id: 103,
+                    rota: 'Rota 03',
+                    cidadeId: 5,
+                    clienteId: 4,
+                    status: 'Pendente',
+                    itens: [
+                        { produtoId: 4, quantidade: 80 }
+                    ]
+                }
+            ]
+        };
 
-        let clientes = [
-            { id: 1, nome: "Agropecuária Santa Maria", documento: "12.345.678/0001-90", cidade: "Aracaju - SE" },
-            { id: 2, nome: "Fazenda São José", documento: "98.765.432/0001-10", cidade: "Itabaiana - SE" },
-            { id: 3, nome: "Grupo Boi Gordo", documento: "45.123.890/0001-33", cidade: "Estância - SE" },
-            { id: 4, nome: "Pecuária Sertão", documento: "22.333.444/0001-55", cidade: "Nossa Senhora da Glória - SE" }
-        ];
+        let barChartInstance = null;
+        let pieChartInstance = null;
+        let selectedCheckboxesState = {};
+        let modalResolveCallback = null;
 
-        let produtos = [
-            { id: 1, nome: "Sal Mineral Nutricional 80", categoria: "Sal Nutricional", pesoSaco: 30 },
-            { id: 2, nome: "Ração Alto Desempenho 22%", categoria: "Ração", pesoSaco: 40 },
-            { id: 3, nome: "Farelo de Soja Especial", categoria: "Farelo de Soja", pesoSaco: 1000 }
-        ];
-
-        let pedidos = [
-            { 
-                id: 1, 
-                rota: "Rota 01", 
-                cidade: "Aracaju - SE",
-                cliente: "Agropecuária Santa Maria", 
-                status: "Pendente",
-                itens: [
-                    { produtoId: 1, produtoNome: "Sal Mineral Nutricional 80", categoria: "Sal Nutricional", pesoSaco: 30, quantidadeSacos: 300, pesoTotalKg: 9000 },
-                    { produtoId: 2, produtoNome: "Ração Alto Desempenho 22%", categoria: "Ração", pesoSaco: 40, quantidadeSacos: 500, pesoTotalKg: 20000 }
-                ]
-            },
-            { 
-                id: 2, 
-                rota: "Rota 01", 
-                cidade: "Nossa Senhora do Socorro - SE",
-                cliente: "Grupo Boi Gordo", 
-                status: "Pendente",
-                itens: [
-                    { produtoId: 1, produtoNome: "Sal Mineral Nutricional 80", categoria: "Sal Nutricional", pesoSaco: 30, quantidadeSacos: 150, pesoTotalKg: 4500 }
-                ]
-            },
-            { 
-                id: 3, 
-                rota: "Rota 02", 
-                cidade: "Itabaiana - SE",
-                cliente: "Fazenda São José", 
-                status: "Pendente",
-                itens: [
-                    { produtoId: 2, produtoNome: "Ração Alto Desempenho 22%", categoria: "Ração", pesoSaco: 40, quantidadeSacos: 1000, pesoTotalKg: 40000 },
-                    { produtoId: 3, produtoNome: "Farelo de Soja Especial", categoria: "Farelo de Soja", pesoSaco: 1000, quantidadeSacos: 30, pesoTotalKg: 30000 }
-                ]
-            }
-        ];
-
-        let dashboardInicializado = false;
-        let barChart = null;
-        let pieChart = null;
-        let listaClientesRotaAtiva = [];
-        let modalConfirmCallback = null;
-
-        function exibirAviso(mensagem, titulo = 'Aviso', tipo = 'info') {
-            const backdrop = document.getElementById('modal-backdrop');
-            const titleEl = document.getElementById('modal-title');
-            const msgEl = document.getElementById('modal-message');
-            const iconEl = document.getElementById('modal-icon');
-            const btnCancel = document.getElementById('modal-btn-cancel');
-            const btnConfirm = document.getElementById('modal-btn-confirm');
-
-            titleEl.innerText = titulo;
-            msgEl.innerText = mensagem;
-            btnCancel.style.display = 'none';
-            btnConfirm.innerText = 'OK';
-            btnConfirm.className = 'px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition';
-
-            if (tipo === 'sucesso') {
-                iconEl.innerHTML = '✅';
-                iconEl.className = 'w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-lg';
-            } else if (tipo === 'erro') {
-                iconEl.innerHTML = '⚠️';
-                iconEl.className = 'w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-lg';
-            } else {
-                iconEl.innerHTML = 'ℹ️';
-                iconEl.className = 'w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg';
-            }
-
-            modalConfirmCallback = null;
-            backdrop.classList.remove('hidden');
+        function toggleSidebarMobile() {
+            const sidebar = document.getElementById('app-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (sidebar) sidebar.classList.toggle('active');
+            if (overlay) overlay.classList.toggle('active');
         }
 
-        function exibirConfirmacao(mensagem, aoConfirmar, titulo = 'Confirmação') {
-            const backdrop = document.getElementById('modal-backdrop');
-            const titleEl = document.getElementById('modal-title');
-            const msgEl = document.getElementById('modal-message');
-            const iconEl = document.getElementById('modal-icon');
-            const btnCancel = document.getElementById('modal-btn-cancel');
-            const btnConfirm = document.getElementById('modal-btn-confirm');
-
-            titleEl.innerText = titulo;
-            msgEl.innerText = mensagem;
-            btnCancel.style.display = 'inline-block';
-            btnConfirm.innerText = 'Confirmar';
-            btnConfirm.className = 'px-4 py-2 text-sm font-semibold text-white bg-rose-600 rounded-lg hover:bg-rose-700 transition';
-
-            iconEl.innerHTML = '❓';
-            iconEl.className = 'w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-lg';
-
-            modalConfirmCallback = aoConfirmar;
-            backdrop.classList.remove('hidden');
+        function closeSidebarMobile() {
+            const sidebar = document.getElementById('app-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (sidebar) sidebar.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
         }
 
-        function fecharModal(confirmado = false) {
-            const backdrop = document.getElementById('modal-backdrop');
-            backdrop.classList.add('hidden');
-            if (confirmado && typeof modalConfirmCallback === 'function') {
-                modalConfirmCallback();
-            }
-            modalConfirmCallback = null;
-        }
-
-        function realizarLogin(event) {
-            event.preventDefault();
+        function realizarLogin(e) {
+            e.preventDefault();
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
-            const errorBox = document.getElementById('login-error');
 
             if (user === 'Diego' && pass === '658610') {
-                errorBox.style.display = 'none';
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-screen').style.display = 'block';
-
-                if (!dashboardInicializado) {
-                    atualizarSistema();
-                    dashboardInicializado = true;
-                }
+                document.getElementById('login-error').style.display = 'none';
+                
+                setTimeout(() => {
+                    inicializarApp();
+                }, 50);
             } else {
-                errorBox.style.display = 'block';
+                document.getElementById('login-error').style.display = 'block';
             }
         }
 
         function realizarLogout() {
             document.getElementById('dashboard-screen').style.display = 'none';
             document.getElementById('login-screen').style.display = 'flex';
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
+            closeSidebarMobile();
         }
 
         function switchTab(tabId, el) {
-            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
-            
-            document.getElementById(tabId).classList.add('active');
-            
-            if (el) {
-                el.classList.add('active');
-            } else {
-                const menuItem = document.getElementById('menu-' + tabId);
-                if (menuItem) menuItem.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+
+            const target = document.getElementById(tabId);
+            if (target) target.classList.add('active');
+            if (el) el.classList.add('active');
+
+            closeSidebarMobile();
+
+            if (tabId === 'tab-relatorio-rota') {
+                exibirRelatorioRota(document.getElementById('relatorio-select-rota').value || 'Rota 01');
             }
         }
 
-        function abrirDetalhesRota(nomeRota) {
-            exibirRelatorioRota(nomeRota);
-            switchTab('tab-relatorio-rota');
-        }
-
-        function exibirRelatorioRota(nomeRota) {
-            document.getElementById('relatorio-rota-badge').innerText = nomeRota;
-            document.getElementById('relatorio-select-rota').value = nomeRota;
-
-            const cidadesRota = cidades.filter(c => c.rota === nomeRota).map(c => c.nome);
-            document.getElementById('relatorio-cidades-lista').innerText = cidadesRota.length > 0 ? cidadesRota.join(', ') : 'Nenhuma cidade vinculada';
-
-            const pedidosRota = pedidos.filter(p => p.rota === nomeRota);
-            const agrupadoPorCliente = {};
-
-            pedidosRota.forEach(p => {
-                if (!agrupadoPorCliente[p.cliente]) {
-                    agrupadoPorCliente[p.cliente] = {
-                        cliente: p.cliente,
-                        cidade: p.cidade,
-                        produtosMap: {},
-                        totalSacos: 0,
-                        totalKg: 0,
-                        selecionado: true,
-                        pedidosIds: [],
-                        todosEmRota: true
-                    };
-                }
-
-                agrupadoPorCliente[p.cliente].pedidosIds.push(p.id);
-                if (p.status !== "Em Rota") {
-                    agrupadoPorCliente[p.cliente].todosEmRota = false;
-                }
-
-                p.itens.forEach(it => {
-                    agrupadoPorCliente[p.cliente].totalSacos += it.quantidadeSacos;
-                    agrupadoPorCliente[p.cliente].totalKg += it.pesoTotalKg;
-
-                    if (!agrupadoPorCliente[p.cliente].produtosMap[it.produtoNome]) {
-                        agrupadoPorCliente[p.cliente].produtosMap[it.produtoNome] = {
-                            nome: it.produtoNome,
-                            sacos: 0,
-                            kg: 0
-                        };
-                    }
-
-                    agrupadoPorCliente[p.cliente].produtosMap[it.produtoNome].sacos += it.quantidadeSacos;
-                    agrupadoPorCliente[p.cliente].produtosMap[it.produtoNome].kg += it.pesoTotalKg;
-                });
-            });
-
-            listaClientesRotaAtiva = Object.values(agrupadoPorCliente);
-            document.getElementById('chk-select-all').checked = true;
-
-            renderizarTabelaRelatorio();
-        }
-
-        function renderizarTabelaRelatorio() {
-            const formatNum = (val) => new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(val);
-            const tbodyRel = document.querySelector('#table-relatorio-rota-clientes tbody');
-            tbodyRel.innerHTML = '';
-
-            if (listaClientesRotaAtiva.length === 0) {
-                tbodyRel.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #94A3B8; padding: 24px;">Nenhum pedido registrado para esta rota até o momento.</td></tr>`;
-                recalcularTotaisRelatorio();
-                return;
-            }
-
-            listaClientesRotaAtiva.forEach((c, idx) => {
-                let resumoProdsHtml = '<ul class="prod-sublist">';
-                Object.values(c.produtosMap).forEach(prod => {
-                    resumoProdsHtml += `<li><strong>${prod.sacos}x</strong> ${prod.nome} <span style="color:#64748B;">(${formatNum(prod.kg)} kg)</span></li>`;
-                });
-                resumoProdsHtml += '</ul>';
-
-                const tr = document.createElement('tr');
-                tr.id = `rel-row-${idx}`;
+        function mostrarModal(titulo, mensagem, showCancel = false) {
+            return new Promise((resolve) => {
+                document.getElementById('modal-title').innerText = titulo;
+                document.getElementById('modal-message').innerText = mensagem;
+                document.getElementById('modal-btn-cancel').style.display = showCancel ? 'inline-block' : 'none';
                 
-                if (!c.selecionado) tr.classList.add('unselected-row');
-                if (c.todosEmRota) tr.classList.add('row-em-rota');
-
-                const statusBadge = c.todosEmRota 
-                    ? `<span class="badge badge-status-rota">Em Rota 🚚</span>`
-                    : `<span class="badge badge-status-pendente">Pendente ⏳</span>`;
-
-                tr.innerHTML = `
-                    <td class="col-checkbox" style="text-align: center;">
-                        <input type="checkbox" ${c.selecionado ? 'checked' : ''} onchange="toggleSelecaoCliente(${idx}, this.checked)" style="width: 16px; height: 16px; cursor: pointer;">
-                    </td>
-                    <td>${statusBadge}</td>
-                    <td><strong>${c.cliente}</strong></td>
-                    <td>${c.cidade}</td>
-                    <td>${resumoProdsHtml}</td>
-                    <td><strong>${formatNum(c.totalSacos)} sacos/bags</strong></td>
-                    <td><strong style="color: var(--primary-color);">${formatNum(c.totalKg)} kg</strong></td>
-                `;
-                tbodyRel.appendChild(tr);
+                document.getElementById('modal-backdrop').classList.remove('hidden');
+                modalResolveCallback = resolve;
             });
-
-            recalcularTotaisRelatorio();
         }
 
-        function toggleSelecaoCliente(index, isChecked) {
-            if (listaClientesRotaAtiva[index]) {
-                listaClientesRotaAtiva[index].selecionado = isChecked;
-                const row = document.getElementById(`rel-row-${index}`);
-                if (row) {
-                    if (isChecked) row.classList.remove('unselected-row');
-                    else row.classList.add('unselected-row');
-                }
-            }
-
-            const todosMarcados = listaClientesRotaAtiva.every(c => c.selecionado);
-            document.getElementById('chk-select-all').checked = todosMarcados;
-
-            recalcularTotaisRelatorio();
-        }
-
-        function alternarTodosCheckboxes(isChecked) {
-            listaClientesRotaAtiva.forEach((c, idx) => {
-                c.selecionado = isChecked;
-                const row = document.getElementById(`rel-row-${idx}`);
-                if (row) {
-                    const chk = row.querySelector('input[type="checkbox"]');
-                    if (chk) chk.checked = isChecked;
-                    if (isChecked) row.classList.remove('unselected-row');
-                    else row.classList.add('unselected-row');
-                }
-            });
-            recalcularTotaisRelatorio();
-        }
-
-        function recalcularTotaisRelatorio() {
-            const formatNum = (val) => new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(val);
-
-            let totalKg = 0;
-            let totalSacos = 0;
-            let totalClientes = 0;
-            const produtosAgrupadosTotais = {};
-
-            listaClientesRotaAtiva.forEach(c => {
-                if (c.selecionado) {
-                    totalKg += c.totalKg;
-                    totalSacos += c.totalSacos;
-                    totalClientes++;
-
-                    Object.values(c.produtosMap).forEach(prod => {
-                        if (!produtosAgrupadosTotais[prod.nome]) {
-                            produtosAgrupadosTotais[prod.nome] = {
-                                nome: prod.nome,
-                                sacos: 0,
-                                kg: 0
-                            };
-                        }
-                        produtosAgrupadosTotais[prod.nome].sacos += prod.sacos;
-                        produtosAgrupadosTotais[prod.nome].kg += prod.kg;
-                    });
-                }
-            });
-
-            document.getElementById('relatorio-total-kg').innerText = formatNum(totalKg) + ' kg';
-            document.getElementById('relatorio-total-sacos').innerText = formatNum(totalSacos) + ' sacos';
-            document.getElementById('relatorio-total-clientes').innerText = totalClientes;
-
-            // Atualiza a tabela de Consolidado por Produto da Rota
-            const tbodyResumoProd = document.querySelector('#table-resumo-produtos-rota tbody');
-            tbodyResumoProd.innerHTML = '';
-
-            const listaProdutosSum = Object.values(produtosAgrupadosTotais);
-
-            if (listaProdutosSum.length === 0) {
-                tbodyResumoProd.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #94A3B8; padding: 12px;">Nenhum produto selecionado.</td></tr>`;
-            } else {
-                listaProdutosSum.forEach(prodSum => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><strong>${prodSum.nome}</strong></td>
-                        <td><strong style="color: var(--primary-color);">${formatNum(prodSum.sacos)} sacos/bags</strong></td>
-                        <td><strong>${formatNum(prodSum.kg)} kg</strong></td>
-                    `;
-                    tbodyResumoProd.appendChild(tr);
-                });
+        function fecharModal(confirmed) {
+            document.getElementById('modal-backdrop').classList.add('hidden');
+            if (modalResolveCallback) {
+                modalResolveCallback(confirmed);
+                modalResolveCallback = null;
             }
         }
 
-        function gerarRotaSelecionados() {
-            const selecionados = listaClientesRotaAtiva.filter(c => c.selecionado);
-            if (selecionados.length === 0) {
-                exibirAviso('Selecione pelo menos um cliente para colocar em rota!', 'Aviso', 'erro');
-                return;
-            }
-
-            let idsParaAtualizar = [];
-            selecionados.forEach(c => {
-                idsParaAtualizar.push(...c.pedidosIds);
-            });
-
-            pedidos.forEach(p => {
-                if (idsParaAtualizar.includes(p.id)) {
-                    p.status = "Em Rota";
-                }
-            });
-
-            exibirAviso(`🚚 ${selecionados.length} cliente(s) e ${idsParaAtualizar.length} pedido(s) foram colocados EM ROTA com sucesso!`, 'Rota Gerada', 'sucesso');
-            atualizarSistema();
-        }
-
-        function finalizarRotaSelecionados() {
-            const selecionados = listaClientesRotaAtiva.filter(c => c.selecionado);
-            
-            if (selecionados.length === 0) {
-                exibirAviso('Selecione pelo menos um cliente/pedido marcado para finalizar a rota!', 'Aviso', 'erro');
-                return;
-            }
-
-            let idsParaRemover = [];
-            selecionados.forEach(c => {
-                idsParaRemover.push(...c.pedidosIds);
-            });
-
-            const rotaAtual = document.getElementById('relatorio-select-rota').value || 'a rota selecionada';
-            
-            exibirConfirmacao(
-                `Deseja realmente FINALIZAR a rota para os ${selecionados.length} cliente(s) selecionados em ${rotaAtual}?\n\nEsta ação excluirá os pedidos finalizados do sistema permanentemente.`,
-                () => {
-                    pedidos = pedidos.filter(p => !idsParaRemover.includes(p.id));
-                    exibirAviso(`✅ Rota concluída com sucesso! ${idsParaRemover.length} pedido(s) foram finalizados.`, 'Sucesso', 'sucesso');
-                    atualizarSistema();
-                },
-                'Confirmar Finalização de Rota'
-            );
-        }
-
-        function imprimirApenasSelecionados() {
-            const selecionados = listaClientesRotaAtiva.filter(c => c.selecionado);
-            if (selecionados.length === 0) {
-                exibirAviso('Selecione pelo menos um cliente/pedido para imprimir!', 'Aviso', 'erro');
-                return;
-            }
-            window.print();
+        function inicializarApp() {
+            carregarSelectsFormularioPedido();
+            renderizarListaPedidos();
+            renderizarTabelaDemandaConsolidada();
+            renderizarListaClientes();
+            renderizarListaCidades();
+            renderizarListaProdutos();
+            atualizarKPIs();
+            renderizarGraficos();
         }
 
         function aoMudarRotaNoPedido() {
             const rotaSelecionada = document.getElementById('input-rota').value;
-            const selectCidade = document.getElementById('select-pedido-cidade');
-            
-            const cidadesDaRota = cidades.filter(c => c.rota === rotaSelecionada);
+            atualizarSelectCidadesEClientesPorRota('select-pedido-cidade', 'select-pedido-cliente', rotaSelecionada);
+        }
 
-            if (cidadesDaRota.length > 0) {
-                selectCidade.innerHTML = cidadesDaRota.map(c => `<option value="${c.nome} - ${c.uf}">${c.nome} - ${c.uf}</option>`).join('');
-            } else {
-                selectCidade.innerHTML = `<option value="">Nenhuma cidade cadastrada nesta rota</option>`;
+        function atualizarSelectCidadesEClientesPorRota(selectCidadeId, selectClienteId, rota) {
+            const selectCidade = document.getElementById(selectCidadeId);
+            const selectCliente = document.getElementById(selectClienteId);
+
+            const cidadesDaRota = state.cidades.filter(c => c.rota === rota);
+            selectCidade.innerHTML = cidadesDaRota.map(c => `<option value="${c.id}">${c.nome} - ${c.uf}</option>`).join('');
+
+            const idsCidades = cidadesDaRota.map(c => c.id);
+            const clientesDaRota = state.clientes.filter(cl => idsCidades.includes(cl.cidadeId));
+            
+            selectCliente.innerHTML = clientesDaRota.map(cl => {
+                const cid = state.cidades.find(c => c.id === cl.cidadeId);
+                return `<option value="${cl.id}">${cl.nome} (${cid ? cid.nome : ''})</option>`;
+            }).join('');
+        }
+
+        function carregarSelectsFormularioPedido() {
+            aoMudarRotaNoPedido();
+            
+            const container = document.getElementById('produtos-pedido-container');
+            container.innerHTML = '';
+            adicionarLinhaProduto();
+
+            const selectCidadeCliente = document.getElementById('novo-cliente-cidade');
+            if (selectCidadeCliente) {
+                selectCidadeCliente.innerHTML = state.cidades.map(c => `<option value="${c.id}">${c.nome} - ${c.uf} (${c.rota})</option>`).join('');
             }
         }
 
         function adicionarLinhaProduto() {
             const container = document.getElementById('produtos-pedido-container');
-            const rowId = 'prod-row-' + Date.now() + Math.random().toString(36).substring(2, 5);
+            const idLinha = Date.now() + Math.random();
+            
+            const div = document.createElement('div');
+            div.className = 'product-item-row';
+            div.id = `linha-prod-${idLinha}`;
+            
+            const optionsProdutos = state.produtos.map(p => `<option value="${p.id}">${p.nome} (${p.categoria} - ${p.peso}kg)</option>`).join('');
 
-            let optionsHtml = produtos.map(p => `<option value="${p.id}">${p.nome} (${p.categoria} - ${p.pesoSaco}kg/saco)</option>`).join('');
-
-            const row = document.createElement('div');
-            row.className = 'product-item-row';
-            row.id = rowId;
-            row.innerHTML = `
-                <div class="form-group" style="margin:0;">
-                    <label>Produto</label>
-                    <select class="sel-prod" onchange="atualizarSacosKgCalculo('${rowId}')">${optionsHtml}</select>
+            div.innerHTML = `
+                <div>
+                    <label style="font-size: 11px; font-weight: 600; color: #64748B;">Produto</label>
+                    <select class="input-prod-id" style="width: 100%; padding: 8px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 13px;">${optionsProdutos}</select>
                 </div>
-                <div class="form-group" style="margin:0;">
-                    <label>Qtd. Sacos/Bags</label>
-                    <input type="number" class="ipt-sacos" min="1" value="10" oninput="atualizarSacosKgCalculo('${rowId}')">
+                <div>
+                    <label style="font-size: 11px; font-weight: 600; color: #64748B;">Qtd (Sacos/Bags)</label>
+                    <input type="number" class="input-prod-qtd" value="10" min="1" required style="width: 100%; padding: 8px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 13px;">
                 </div>
-                <div class="form-group" style="margin:0;">
-                    <label>Total (kg)</label>
-                    <input type="text" class="ipt-kg" readonly style="background:#E2E8F0; font-weight:600;">
-                </div>
-                <div style="padding-top: 18px;">
-                    <button type="button" class="btn-danger" style="padding: 10px 12px;" onclick="removerLinhaProduto('${rowId}')">✕</button>
+                <div>
+                    <span style="font-size: 11px; font-weight: 600; color: #64748B; display: block;">&nbsp;</span>
+                    <button type="button" class="btn-danger" onclick="removerLinhaProduto('linha-prod-${idLinha}')">✕ Excluir</button>
                 </div>
             `;
-            container.appendChild(row);
-            atualizarSacosKgCalculo(rowId);
+            container.appendChild(div);
         }
 
-        function removerLinhaProduto(rowId) {
-            const row = document.getElementById(rowId);
-            if (row) {
-                const container = document.getElementById('produtos-pedido-container');
-                if (container.children.length > 1) {
-                    row.remove();
+        function removerLinhaProduto(idLinha) {
+            const el = document.getElementById(idLinha);
+            if (el) el.remove();
+        }
+
+        function adicionarPedido(e) {
+            e.preventDefault();
+            const rota = document.getElementById('input-rota').value;
+            const cidadeId = parseInt(document.getElementById('select-pedido-cidade').value);
+            const clienteId = parseInt(document.getElementById('select-pedido-cliente').value);
+
+            const linhas = document.querySelectorAll('#produtos-pedido-container .product-item-row');
+            const itens = [];
+
+            linhas.forEach(linha => {
+                const pId = parseInt(linha.querySelector('.input-prod-id').value);
+                const qtd = parseInt(linha.querySelector('.input-prod-qtd').value);
+                if (pId && qtd > 0) {
+                    itens.push({ produtoId: pId, quantidade: qtd });
+                }
+            });
+
+            if (itens.length === 0) {
+                mostrarModal('Atenção', 'Adicione pelo menos um produto ao pedido!');
+                return;
+            }
+
+            const novoPedido = {
+                id: Math.floor(100 + Math.random() * 900),
+                rota,
+                cidadeId,
+                clienteId,
+                status: 'Pendente',
+                itens
+            };
+
+            state.pedidos.push(novoPedido);
+            mostrarModal('Sucesso', 'Pedido lançado com sucesso!');
+            
+            inicializarApp();
+        }
+
+        function renderizarListaPedidos() {
+            const tbody = document.querySelector('#table-pedidos tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = state.pedidos.map(p => {
+                const cliente = state.clientes.find(c => c.id === p.clienteId);
+                const cidade = state.cidades.find(c => c.id === p.cidadeId);
+                
+                let totalSacos = 0;
+                let totalKg = 0;
+
+                const listaProdsHtml = p.itens.map(item => {
+                    const prod = state.produtos.find(pr => pr.id === item.produtoId);
+                    if (!prod) return '';
+                    const subKg = item.quantidade * prod.peso;
+                    totalSacos += item.quantidade;
+                    totalKg += subKg;
+                    return `<li>• <strong>${prod.nome}</strong>: ${item.quantidade} sacos (${subKg.toLocaleString('pt-BR')} kg)</li>`;
+                }).join('');
+
+                const badgeStatus = p.status === 'Em Rota' 
+                    ? `<span class="badge badge-status-rota">🚚 Em Rota</span>`
+                    : `<span class="badge badge-status-pendente">⏳ Pendente</span>`;
+
+                return `
+                    <tr class="${p.status === 'Em Rota' ? 'row-em-rota' : ''}">
+                        <td>${badgeStatus}</td>
+                        <td><span class="badge badge-route">${p.rota}</span></td>
+                        <td>${cidade ? cidade.nome + ' - ' + cidade.uf : '-'}</td>
+                        <td><strong>${cliente ? cliente.nome : '-'}</strong></td>
+                        <td><ul class="prod-sublist">${listaProdsHtml}</ul></td>
+                        <td><strong>${totalSacos.toLocaleString('pt-BR')}</strong> sacos</td>
+                        <td><strong>${totalKg.toLocaleString('pt-BR')}</strong> kg</td>
+                        <td>
+                            <button class="btn-warning" onclick="abrirModalEditarPedido(${p.id})">✏️ Editar</button>
+                            <button class="btn-danger" style="margin-top: 4px;" onclick="excluirPedido(${p.id})">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function excluirPedido(id) {
+            const ok = await mostrarModal('Confirmar Exclusão', `Deseja realmente excluir o pedido #${id}?`, true);
+            if (ok) {
+                state.pedidos = state.pedidos.filter(p => p.id !== id);
+                inicializarApp();
+            }
+        }
+
+        function renderizarTabelaDemandaConsolidada() {
+            const tbody = document.querySelector('#table-demanda tbody');
+            if (!tbody) return;
+
+            const rotas = ['Rota 01', 'Rota 02', 'Rota 03', 'Rota 04', 'Rota 05', 'Rota 06', 'Rota 07', 'Rota 08', 'Rota 09'];
+
+            tbody.innerHTML = rotas.map(rota => {
+                const cidadesDaRota = state.cidades.filter(c => c.rota === rota);
+                const nomesCidades = cidadesDaRota.map(c => c.nome).join(', ') || 'Nenhuma cadastrada';
+
+                let salKg = 0;
+                let racaoKg = 0;
+                let sojaKg = 0;
+                let totalSacos = 0;
+
+                state.pedidos.filter(p => p.rota === rota).forEach(p => {
+                    p.itens.forEach(item => {
+                        const prod = state.produtos.find(pr => pr.id === item.produtoId);
+                        if (prod) {
+                            const pesoTotal = item.quantidade * prod.peso;
+                            totalSacos += item.quantidade;
+                            if (prod.categoria === 'Sal Nutricional') salKg += pesoTotal;
+                            else if (prod.categoria === 'Ração') racaoKg += pesoTotal;
+                            else if (prod.categoria === 'Farelo de Soja') sojaKg += pesoTotal;
+                        }
+                    });
+                });
+
+                const totalKg = salKg + racaoKg + sojaKg;
+                const mediaSemanal = Math.round(totalKg / 4.3);
+
+                return `
+                    <tr>
+                        <td>
+                            <span class="route-link" onclick="irParaDetalhamentoRota('${rota}')">${rota}</span>
+                        </td>
+                        <td>${nomesCidades}</td>
+                        <td>${salKg.toLocaleString('pt-BR')} kg</td>
+                        <td>${racaoKg.toLocaleString('pt-BR')} kg</td>
+                        <td>${sojaKg.toLocaleString('pt-BR')} kg</td>
+                        <td><strong>${totalKg.toLocaleString('pt-BR')} kg</strong></td>
+                        <td><strong>${totalSacos.toLocaleString('pt-BR')}</strong> sacos</td>
+                        <td>${mediaSemanal.toLocaleString('pt-BR')} kg/sem</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function irParaDetalhamentoRota(rota) {
+            const tabMenu = document.getElementById('menu-tab-relatorio-rota');
+            document.getElementById('relatorio-select-rota').value = rota;
+            switchTab('tab-relatorio-rota', tabMenu);
+        }
+
+        function exibirRelatorioRota(rota) {
+            document.getElementById('relatorio-rota-badge').innerText = rota;
+            document.getElementById('relatorio-rota-titulo').innerText = `Apuramento Geral por Cliente (${rota})`;
+
+            const pedidosDaRota = state.pedidos.filter(p => p.rota === rota);
+            const cidadesDaRota = state.cidades.filter(c => c.rota === rota);
+            
+            document.getElementById('relatorio-cidades-lista').innerText = cidadesDaRota.map(c => c.nome).join(', ') || 'Nenhuma';
+
+            let grandTotalKg = 0;
+            let grandTotalSacos = 0;
+            const resumoProdutos = {};
+
+            pedidosDaRota.forEach(p => {
+                p.itens.forEach(item => {
+                    const prod = state.produtos.find(pr => pr.id === item.produtoId);
+                    if (prod) {
+                        const subKg = item.quantidade * prod.peso;
+                        grandTotalKg += subKg;
+                        grandTotalSacos += item.quantidade;
+
+                        if (!resumoProdutos[prod.nome]) {
+                            resumoProdutos[prod.nome] = { sacos: 0, kg: 0 };
+                        }
+                        resumoProdutos[prod.nome].sacos += item.quantidade;
+                        resumoProdutos[prod.nome].kg += subKg;
+                    }
+                });
+            });
+
+            document.getElementById('relatorio-total-kg').innerText = `${grandTotalKg.toLocaleString('pt-BR')} kg`;
+            document.getElementById('relatorio-total-sacos').innerText = `${grandTotalSacos.toLocaleString('pt-BR')} sacos`;
+            document.getElementById('relatorio-total-clientes').innerText = pedidosDaRota.length;
+
+            const tbodyResumo = document.querySelector('#table-resumo-produtos-rota tbody');
+            if (tbodyResumo) {
+                const keys = Object.keys(resumoProdutos);
+                if (keys.length === 0) {
+                    tbodyResumo.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94A3B8;">Nenhum pedido cadastrado para esta rota.</td></tr>`;
                 } else {
-                    exibirAviso('O pedido precisa ter pelo menos 1 produto!', 'Aviso', 'erro');
+                    tbodyResumo.innerHTML = keys.map(nome => `
+                        <tr>
+                            <td><strong>${nome}</strong></td>
+                            <td>${resumoProdutos[nome].sacos.toLocaleString('pt-BR')} sacos/bags</td>
+                            <td><strong>${resumoProdutos[nome].kg.toLocaleString('pt-BR')} kg</strong></td>
+                        </tr>
+                    `).join('');
+                }
+            }
+
+            const tbodyClientes = document.querySelector('#table-relatorio-rota-clientes tbody');
+            if (tbodyClientes) {
+                if (pedidosDaRota.length === 0) {
+                    tbodyClientes.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94A3B8;">Nenhum pedido encontrado nesta rota.</td></tr>`;
+                } else {
+                    tbodyClientes.innerHTML = pedidosDaRota.map(p => {
+                        const cliente = state.clientes.find(c => c.id === p.clienteId);
+                        const cidade = state.cidades.find(c => c.id === p.cidadeId);
+                        
+                        let pSacos = 0;
+                        let pKg = 0;
+
+                        const prodsText = p.itens.map(item => {
+                            const prod = state.produtos.find(pr => pr.id === item.produtoId);
+                            if (!prod) return '';
+                            const subKg = item.quantidade * prod.peso;
+                            pSacos += item.quantidade;
+                            pKg += subKg;
+                            return `• ${prod.nome}: ${item.quantidade} sacos`;
+                        }).join('<br>');
+
+                        const isChecked = selectedCheckboxesState[p.id] !== false;
+
+                        const badgeStatus = p.status === 'Em Rota' 
+                            ? `<span class="badge badge-status-rota">🚚 Em Rota</span>`
+                            : `<span class="badge badge-status-pendente">⏳ Pendente</span>`;
+
+                        return `
+                            <tr id="row-relatorio-ped-${p.id}" class="${!isChecked ? 'unselected-row' : ''}">
+                                <td class="col-checkbox" style="text-align:center;">
+                                    <input type="checkbox" class="chk-pedido-item" data-ped-id="${p.id}" ${isChecked ? 'checked' : ''} onchange="aoAlternarCheckboxPedido(${p.id}, this.checked)" style="width: 16px; height: 16px; cursor: pointer;">
+                                </td>
+                                <td>${badgeStatus}</td>
+                                <td><strong>${cliente ? cliente.nome : '-'}</strong></td>
+                                <td>${cidade ? cidade.nome + ' - ' + cidade.uf : '-'}</td>
+                                <td><div style="font-size: 12px;">${prodsText}</div></td>
+                                <td><strong>${pSacos.toLocaleString('pt-BR')}</strong> sacos</td>
+                                <td><strong>${pKg.toLocaleString('pt-BR')}</strong> kg</td>
+                            </tr>
+                        `;
+                    }).join('');
                 }
             }
         }
 
-        function atualizarSacosKgCalculo(rowId) {
-            const row = document.getElementById(rowId);
-            if (!row) return;
-
-            const prodId = parseInt(row.querySelector('.sel-prod').value);
-            const sacos = parseFloat(row.querySelector('.ipt-sacos').value) || 0;
-            const prodObj = produtos.find(p => p.id === prodId);
-
-            if (prodObj) {
-                const totalKg = sacos * prodObj.pesoSaco;
-                row.querySelector('.ipt-kg').value = new Intl.NumberFormat('pt-BR').format(totalKg) + ' kg';
+        function aoAlternarCheckboxPedido(pedId, checked) {
+            selectedCheckboxesState[pedId] = checked;
+            const row = document.getElementById(`row-relatorio-ped-${pedId}`);
+            if (row) {
+                if (checked) row.classList.remove('unselected-row');
+                else row.classList.add('unselected-row');
             }
+        }
+
+        function alternarTodosCheckboxes(checked) {
+            document.querySelectorAll('.chk-pedido-item').forEach(chk => {
+                chk.checked = checked;
+                const pedId = parseInt(chk.getAttribute('data-ped-id'));
+                aoAlternarCheckboxPedido(pedId, checked);
+            });
+        }
+
+        async function gerarRotaSelecionados() {
+            const rota = document.getElementById('relatorio-select-rota').value;
+            const selecionados = Object.keys(selectedCheckboxesState).filter(id => selectedCheckboxesState[id] !== false);
+            
+            if (selecionados.length === 0) {
+                mostrarModal('Atenção', 'Selecione pelo menos um pedido para gerar a rota!');
+                return;
+            }
+
+            state.pedidos.forEach(p => {
+                if (p.rota === rota && selectedCheckboxesState[p.id] !== false) {
+                    p.status = 'Em Rota';
+                }
+            });
+
+            await mostrarModal('Rota Gerada', `A rota ${rota} foi gerada com sucesso para os pedidos selecionados!`);
+            inicializarApp();
+            exibirRelatorioRota(rota);
+        }
+
+        async function finalizarRotaSelecionados() {
+            const rota = document.getElementById('relatorio-select-rota').value;
+            const ok = await mostrarModal('Finalizar Rota', `Deseja concluir e baixar os pedidos da ${rota}?`, true);
+            if (ok) {
+                state.pedidos = state.pedidos.filter(p => !(p.rota === rota && selectedCheckboxesState[p.id] !== false));
+                await mostrarModal('Concluído', 'Pedidos finalizados com sucesso!');
+                inicializarApp();
+                exibirRelatorioRota(rota);
+            }
+        }
+
+        function imprimirApenasSelecionados() {
+            window.print();
         }
 
         function cadastrarCliente(e) {
             e.preventDefault();
             const nome = document.getElementById('novo-cliente-nome').value;
-            const documento = document.getElementById('novo-cliente-documento').value || 'Não Informado';
-            const cidade = document.getElementById('novo-cliente-cidade').value;
+            const doc = document.getElementById('novo-cliente-documento').value;
+            const cidadeId = parseInt(document.getElementById('novo-cliente-cidade').value);
 
-            clientes.push({ id: Date.now(), nome, documento, cidade });
+            const novo = {
+                id: Date.now(),
+                nome,
+                doc: doc || 'Não informado',
+                cidadeId
+            };
+
+            state.clientes.push(novo);
+            mostrarModal('Sucesso', 'Cliente cadastrado com sucesso!');
             document.getElementById('novo-cliente-nome').value = '';
             document.getElementById('novo-cliente-documento').value = '';
-            atualizarSistema();
-            exibirAviso('Cliente cadastrado com sucesso!', 'Sucesso', 'sucesso');
+            
+            inicializarApp();
         }
 
-        function excluirCliente(id) {
-            exibirConfirmacao('Deseja excluir este cliente?', () => {
-                clientes = clientes.filter(c => c.id !== id);
-                atualizarSistema();
-            });
+        function renderizarListaClientes() {
+            const tbody = document.querySelector('#table-clientes tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = state.clientes.map((c, idx) => {
+                const cidade = state.cidades.find(cid => cid.id === c.cidadeId);
+                return `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td><strong>${c.nome}</strong></td>
+                        <td>${c.doc}</td>
+                        <td>${cidade ? cidade.nome + ' - ' + cidade.uf : '-'}</td>
+                        <td>
+                            <button class="btn-danger" onclick="excluirCliente(${c.id})">Excluir</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function excluirCliente(id) {
+            const ok = await mostrarModal('Excluir Cliente', 'Deseja realmente remover este cliente?', true);
+            if (ok) {
+                state.clientes = state.clientes.filter(c => c.id !== id);
+                inicializarApp();
+            }
         }
 
         function cadastrarCidade(e) {
@@ -1614,434 +1840,280 @@
             const nome = document.getElementById('nova-cidade-nome').value;
             const uf = document.getElementById('nova-cidade-uf').value;
 
-            cidades.push({ id: Date.now(), rota, nome, uf });
+            const nova = { id: Date.now(), rota, nome, uf };
+            state.cidades.push(nova);
+
+            mostrarModal('Sucesso', 'Cidade cadastrada e vinculada à rota com sucesso!');
             document.getElementById('nova-cidade-nome').value = '';
-            atualizarSistema();
-            exibirAviso(`Cidade ${nome} vinculada à ${rota} com sucesso!`, 'Sucesso', 'sucesso');
+
+            inicializarApp();
         }
 
-        function excluirCidade(id) {
-            exibirConfirmacao('Deseja excluir esta cidade?', () => {
-                cidades = cidades.filter(c => c.id !== id);
-                atualizarSistema();
-            });
+        function renderizarListaCidades() {
+            const tbody = document.querySelector('#table-cidades tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = state.cidades.map((c, idx) => `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td><span class="badge badge-route">${c.rota}</span></td>
+                    <td><strong>${c.nome}</strong></td>
+                    <td>${c.uf}</td>
+                    <td>
+                        <button class="btn-danger" onclick="excluirCidade(${c.id})">Excluir</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function excluirCidade(id) {
+            const ok = await mostrarModal('Excluir Cidade', 'Deseja realmente remover esta cidade?', true);
+            if (ok) {
+                state.cidades = state.cidades.filter(c => c.id !== id);
+                inicializarApp();
+            }
         }
 
         function cadastrarProduto(e) {
             e.preventDefault();
             const nome = document.getElementById('novo-produto-nome').value;
             const categoria = document.getElementById('novo-produto-categoria').value;
-            const pesoSaco = parseFloat(document.getElementById('novo-produto-peso').value) || 30;
+            const peso = parseInt(document.getElementById('novo-produto-peso').value);
 
-            produtos.push({ id: Date.now(), nome, categoria, pesoSaco });
+            const novo = { id: Date.now(), nome, categoria, peso };
+            state.produtos.push(novo);
+
+            mostrarModal('Sucesso', 'Produto cadastrado com sucesso!');
             document.getElementById('novo-produto-nome').value = '';
             document.getElementById('novo-produto-peso').value = '';
-            atualizarSistema();
-            exibirAviso('Produto cadastrado com sucesso!', 'Sucesso', 'sucesso');
+
+            inicializarApp();
         }
 
-        function excluirProduto(id) {
-            exibirConfirmacao('Deseja excluir este produto?', () => {
-                produtos = produtos.filter(p => p.id !== id);
-                atualizarSistema();
-            });
+        function renderizarListaProdutos() {
+            const tbody = document.querySelector('#table-produtos tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = state.produtos.map((p, idx) => `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td><strong>${p.nome}</strong></td>
+                    <td>${p.categoria}</td>
+                    <td>${p.peso} kg</td>
+                    <td>
+                        <button class="btn-danger" onclick="excluirProduto(${p.id})">Excluir</button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
-        function adicionarPedido(event) {
-            event.preventDefault();
-            const rota = document.getElementById('input-rota').value;
-            const cidade = document.getElementById('select-pedido-cidade').value;
-            const cliente = document.getElementById('select-pedido-cliente').value;
-
-            if (!cidade || cidade.includes('Nenhuma cidade')) {
-                exibirAviso('Cadastre cidades nesta rota antes de efetuar o lançamento!', 'Aviso', 'erro');
-                return;
+        async function excluirProduto(id) {
+            const ok = await mostrarModal('Excluir Produto', 'Deseja realmente remover este produto?', true);
+            if (ok) {
+                state.produtos = state.produtos.filter(p => p.id !== id);
+                inicializarApp();
             }
-
-            const rows = document.querySelectorAll('#produtos-pedido-container .product-item-row');
-            let itens = [];
-
-            rows.forEach(row => {
-                const prodId = parseInt(row.querySelector('.sel-prod').value);
-                const quantidadeSacos = parseFloat(row.querySelector('.ipt-sacos').value) || 0;
-                const prodObj = produtos.find(p => p.id === prodId);
-
-                if (prodObj && quantidadeSacos > 0) {
-                    itens.push({
-                        produtoId: prodObj.id,
-                        produtoNome: prodObj.nome,
-                        categoria: prodObj.categoria,
-                        pesoSaco: prodObj.pesoSaco,
-                        quantidadeSacos: quantidadeSacos,
-                        pesoTotalKg: quantidadeSacos * prodObj.pesoSaco
-                    });
-                }
-            });
-
-            if (itens.length === 0) {
-                exibirAviso('Adicione pelo menos 1 produto válido com quantidade!', 'Aviso', 'erro');
-                return;
-            }
-
-            pedidos.push({
-                id: Date.now(),
-                rota,
-                cidade,
-                cliente,
-                status: "Pendente",
-                itens
-            });
-
-            atualizarSistema();
-            exibirAviso('Pedido cadastrado com sucesso!', 'Sucesso', 'sucesso');
         }
 
-        function excluirPedido(id) {
-            exibirConfirmacao('Remover este pedido?', () => {
-                pedidos = pedidos.filter(p => p.id !== id);
-                atualizarSistema();
-            });
-        }
+        function abrirModalEditarPedido(id) {
+            const pedido = state.pedidos.find(p => p.id === id);
+            if (!pedido) return;
 
-        function editarPedido(id) {
-            const ped = pedidos.find(p => p.id === id);
-            if (!ped) return;
+            document.getElementById('edit-pedido-id').value = pedido.id;
+            document.getElementById('edit-pedido-id-display').innerText = pedido.id;
+            document.getElementById('edit-pedido-rota').value = pedido.rota;
+            document.getElementById('edit-pedido-status').value = pedido.status;
 
-            document.getElementById('edit-pedido-id').value = ped.id;
-            document.getElementById('edit-pedido-id-display').innerText = ped.id;
-            document.getElementById('edit-pedido-rota').value = ped.rota;
-            
-            aoMudarRotaNoModalEdicao(ped.cidade);
+            aoMudarRotaNoModalEdicao();
 
-            const selCliente = document.getElementById('edit-pedido-cliente');
-            selCliente.innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
-            selCliente.value = ped.cliente;
-
-            document.getElementById('edit-pedido-status').value = ped.status || 'Pendente';
+            document.getElementById('edit-pedido-cidade').value = pedido.cidadeId;
+            document.getElementById('edit-pedido-cliente').value = pedido.clienteId;
 
             const container = document.getElementById('edit-produtos-container');
             container.innerHTML = '';
-            
-            if (ped.itens && ped.itens.length > 0) {
-                ped.itens.forEach(it => {
-                    adicionarLinhaProdutoModal(it.produtoId, it.quantidadeSacos);
-                });
-            } else {
-                adicionarLinhaProdutoModal();
-            }
+
+            pedido.itens.forEach(item => {
+                adicionarLinhaProdutoModal(item.produtoId, item.quantidade);
+            });
 
             document.getElementById('modal-editar-pedido').classList.remove('hidden');
+        }
+
+        function aoMudarRotaNoModalEdicao() {
+            const rota = document.getElementById('edit-pedido-rota').value;
+            atualizarSelectCidadesEClientesPorRota('edit-pedido-cidade', 'edit-pedido-cliente', rota);
+        }
+
+        function adicionarLinhaProdutoModal(prodId = null, qtd = 10) {
+            const container = document.getElementById('edit-produtos-container');
+            const idLinha = Date.now() + Math.random();
+
+            const div = document.createElement('div');
+            div.className = 'product-item-row';
+            div.id = `edit-linha-prod-${idLinha}`;
+
+            const optionsProdutos = state.produtos.map(p => `
+                <option value="${p.id}" ${prodId === p.id ? 'selected' : ''}>${p.nome} (${p.categoria} - ${p.peso}kg)</option>
+            `).join('');
+
+            div.innerHTML = `
+                <div>
+                    <label style="font-size: 11px; font-weight: 600; color: #64748B;">Produto</label>
+                    <select class="input-prod-id" style="width: 100%; padding: 8px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 13px;">${optionsProdutos}</select>
+                </div>
+                <div>
+                    <label style="font-size: 11px; font-weight: 600; color: #64748B;">Qtd (Sacos/Bags)</label>
+                    <input type="number" class="input-prod-qtd" value="${qtd}" min="1" required style="width: 100%; padding: 8px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 13px;">
+                </div>
+                <div>
+                    <span style="font-size: 11px; font-weight: 600; color: #64748B; display: block;">&nbsp;</span>
+                    <button type="button" class="btn-danger" onclick="removerLinhaProduto('edit-linha-prod-${idLinha}')">✕ Excluir</button>
+                </div>
+            `;
+            container.appendChild(div);
         }
 
         function fecharModalEditarPedido() {
             document.getElementById('modal-editar-pedido').classList.add('hidden');
         }
 
-        function aoMudarRotaNoModalEdicao(cidadeSelecionada = null) {
-            const rotaSelecionada = document.getElementById('edit-pedido-rota').value;
-            const selectCidade = document.getElementById('edit-pedido-cidade');
-            const cidadesDaRota = cidades.filter(c => c.rota === rotaSelecionada);
-
-            if (cidadesDaRota.length > 0) {
-                selectCidade.innerHTML = cidadesDaRota.map(c => `<option value="${c.nome} - ${c.uf}">${c.nome} - ${c.uf}</option>`).join('');
-                if (cidadeSelecionada) {
-                    selectCidade.value = cidadeSelecionada;
-                }
-            } else {
-                selectCidade.innerHTML = `<option value="">Nenhuma cidade cadastrada nesta rota</option>`;
-            }
-        }
-
-        function adicionarLinhaProdutoModal(prodIdPadrao = null, qtdPadrao = 10) {
-            const container = document.getElementById('edit-produtos-container');
-            const rowId = 'edit-prod-row-' + Date.now() + Math.random().toString(36).substring(2, 5);
-
-            let optionsHtml = produtos.map(p => `<option value="${p.id}">${p.nome} (${p.categoria} - ${p.pesoSaco}kg/saco)</option>`).join('');
-
-            const row = document.createElement('div');
-            row.className = 'product-item-row';
-            row.id = rowId;
-            row.innerHTML = `
-                <div class="form-group" style="margin:0;">
-                    <label>Produto</label>
-                    <select class="sel-prod" onchange="atualizarSacosKgCalculoModal('${rowId}')">${optionsHtml}</select>
-                </div>
-                <div class="form-group" style="margin:0;">
-                    <label>Qtd. Sacos/Bags</label>
-                    <input type="number" class="ipt-sacos" min="1" value="${qtdPadrao}" oninput="atualizarSacosKgCalculoModal('${rowId}')">
-                </div>
-                <div class="form-group" style="margin:0;">
-                    <label>Total (kg)</label>
-                    <input type="text" class="ipt-kg" readonly style="background:#E2E8F0; font-weight:600;">
-                </div>
-                <div style="padding-top: 18px;">
-                    <button type="button" class="btn-danger" style="padding: 10px 12px;" onclick="removerLinhaProdutoModal('${rowId}')">✕</button>
-                </div>
-            `;
-            container.appendChild(row);
-
-            if (prodIdPadrao) {
-                row.querySelector('.sel-prod').value = prodIdPadrao;
-            }
-            atualizarSacosKgCalculoModal(rowId);
-        }
-
-        function removerLinhaProdutoModal(rowId) {
-            const row = document.getElementById(rowId);
-            if (row) {
-                const container = document.getElementById('edit-produtos-container');
-                if (container.children.length > 1) {
-                    row.remove();
-                } else {
-                    exibirAviso('O pedido precisa ter pelo menos 1 produto!', 'Aviso', 'erro');
-                }
-            }
-        }
-
-        function atualizarSacosKgCalculoModal(rowId) {
-            const row = document.getElementById(rowId);
-            if (!row) return;
-
-            const prodId = parseInt(row.querySelector('.sel-prod').value);
-            const sacos = parseFloat(row.querySelector('.ipt-sacos').value) || 0;
-            const prodObj = produtos.find(p => p.id === prodId);
-
-            if (prodObj) {
-                const totalKg = sacos * prodObj.pesoSaco;
-                row.querySelector('.ipt-kg').value = new Intl.NumberFormat('pt-BR').format(totalKg) + ' kg';
-            }
-        }
-
-        function salvarEdicaoPedido(event) {
-            event.preventDefault();
+        function salvarEdicaoPedido(e) {
+            e.preventDefault();
             const id = parseInt(document.getElementById('edit-pedido-id').value);
-            const pedIndex = pedidos.findIndex(p => p.id === id);
-
-            if (pedIndex === -1) {
-                exibirAviso('Pedido não encontrado para edição.', 'Erro', 'erro');
-                return;
-            }
-
             const rota = document.getElementById('edit-pedido-rota').value;
-            const cidade = document.getElementById('edit-pedido-cidade').value;
-            const cliente = document.getElementById('edit-pedido-cliente').value;
+            const cidadeId = parseInt(document.getElementById('edit-pedido-cidade').value);
+            const clienteId = parseInt(document.getElementById('edit-pedido-cliente').value);
             const status = document.getElementById('edit-pedido-status').value;
 
-            if (!cidade || cidade.includes('Nenhuma cidade')) {
-                exibirAviso('Selecione uma cidade válida para a rota!', 'Aviso', 'erro');
-                return;
-            }
+            const linhas = document.querySelectorAll('#edit-produtos-container .product-item-row');
+            const itens = [];
 
-            const rows = document.querySelectorAll('#edit-produtos-container .product-item-row');
-            let itens = [];
-
-            rows.forEach(row => {
-                const prodId = parseInt(row.querySelector('.sel-prod').value);
-                const quantidadeSacos = parseFloat(row.querySelector('.ipt-sacos').value) || 0;
-                const prodObj = produtos.find(p => p.id === prodId);
-
-                if (prodObj && quantidadeSacos > 0) {
-                    itens.push({
-                        produtoId: prodObj.id,
-                        produtoNome: prodObj.nome,
-                        categoria: prodObj.categoria,
-                        pesoSaco: prodObj.pesoSaco,
-                        quantidadeSacos: quantidadeSacos,
-                        pesoTotalKg: quantidadeSacos * prodObj.pesoSaco
-                    });
+            linhas.forEach(linha => {
+                const pId = parseInt(linha.querySelector('.input-prod-id').value);
+                const qtd = parseInt(linha.querySelector('.input-prod-qtd').value);
+                if (pId && qtd > 0) {
+                    itens.push({ produtoId: pId, quantidade: qtd });
                 }
             });
 
             if (itens.length === 0) {
-                exibirAviso('Adicione pelo menos 1 produto válido!', 'Aviso', 'erro');
+                mostrarModal('Atenção', 'Adicione pelo menos um produto ao pedido!');
                 return;
             }
 
-            pedidos[pedIndex] = {
-                ...pedidos[pedIndex],
-                rota,
-                cidade,
-                cliente,
-                status,
-                itens
-            };
+            const pedidoIndex = state.pedidos.findIndex(p => p.id === id);
+            if (pedidoIndex !== -1) {
+                state.pedidos[pedidoIndex] = { id, rota, cidadeId, clienteId, status, itens };
+            }
 
             fecharModalEditarPedido();
-            atualizarSistema();
-            exibirAviso('Pedido alterado com sucesso!', 'Sucesso', 'sucesso');
+            mostrarModal('Sucesso', 'Pedido atualizado com sucesso!');
+            inicializarApp();
         }
 
-        function atualizarSistema() {
-            const formatNum = (val) => new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(val);
+        function atualizarKPIs() {
+            let totalKg = 0;
+            let totalSacos = 0;
 
-            document.getElementById('select-pedido-cliente').innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
-            const opcoesTodasCidades = cidades.map(c => `<option value="${c.nome} - ${c.uf}">${c.nome} - ${c.uf} (${c.rota})</option>`).join('');
-            document.getElementById('novo-cliente-cidade').innerHTML = opcoesTodasCidades;
-
-            aoMudarRotaNoPedido();
-
-            const container = document.getElementById('produtos-pedido-container');
-            container.innerHTML = '';
-            adicionarLinhaProduto();
-
-            const rotasLista = ["Rota 01", "Rota 02", "Rota 03", "Rota 04", "Rota 05", "Rota 06", "Rota 07", "Rota 08", "Rota 09"];
-            const consolidadoRotas = rotasLista.map(r => ({ rota: r, sal: 0, racao: 0, soja: 0, totalSacos: 0 }));
-
-            let totalSal = 0, totalRacao = 0, totalSoja = 0, totalSacosGeral = 0;
-
-            pedidos.forEach(p => {
+            state.pedidos.forEach(p => {
                 p.itens.forEach(item => {
-                    totalSacosGeral += item.quantidadeSacos;
-                    if (item.categoria === 'Sal Nutricional') totalSal += item.pesoTotalKg;
-                    else if (item.categoria === 'Ração') totalRacao += item.pesoTotalKg;
-                    else if (item.categoria === 'Farelo de Soja') totalSoja += item.pesoTotalKg;
-
-                    const rObj = consolidadoRotas.find(r => r.rota === p.rota);
-                    if (rObj) {
-                        rObj.totalSacos += item.quantidadeSacos;
-                        if (item.categoria === 'Sal Nutricional') rObj.sal += item.pesoTotalKg;
-                        else if (item.categoria === 'Ração') rObj.racao += item.pesoTotalKg;
-                        else if (item.categoria === 'Farelo de Soja') rObj.soja += item.pesoTotalKg;
+                    const prod = state.produtos.find(pr => pr.id === item.produtoId);
+                    if (prod) {
+                        totalSacos += item.quantidade;
+                        totalKg += item.quantidade * prod.peso;
                     }
                 });
             });
 
-            const totalGeral = totalSal + totalRacao + totalSoja;
-            const mediaSemanal = totalGeral / 4.3;
+            const mediaSemanal = Math.round(totalKg / 4.3);
 
-            document.getElementById('kpi-total-mes').innerText = formatNum(totalGeral) + ' kg';
-            document.getElementById('kpi-sacos-mes').innerText = formatNum(totalSacosGeral) + ' sacos/bags';
-            document.getElementById('kpi-media-semana').innerText = formatNum(mediaSemanal) + ' kg';
-            document.getElementById('kpi-total-clientes').innerText = clientes.length;
-            document.getElementById('kpi-total-cidades').innerText = cidades.length;
-            document.getElementById('kpi-total-produtos').innerText = produtos.length;
-
-            const tbodyDemanda = document.querySelector('#table-demanda tbody');
-            tbodyDemanda.innerHTML = '';
-            consolidadoRotas.forEach(item => {
-                const rowTotal = item.sal + item.racao + item.soja;
-                const cidadesDaRota = cidades.filter(c => c.rota === item.rota).map(c => c.nome).join(', ') || '<em>Nenhuma cadastrada</em>';
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><span class="route-link" onclick="abrirDetalhesRota('${item.rota}')">${item.rota} 🔍</span></td>
-                    <td style="font-size: 12px; color: #475569;">${cidadesDaRota}</td>
-                    <td>${formatNum(item.sal)}</td>
-                    <td>${formatNum(item.racao)}</td>
-                    <td>${formatNum(item.soja)}</td>
-                    <td><strong>${formatNum(rowTotal)}</strong></td>
-                    <td><strong>${formatNum(item.totalSacos)}</strong></td>
-                    <td>${formatNum(rowTotal / 4.3)}</td>
-                `;
-                tbodyDemanda.appendChild(tr);
-            });
-
-            const tbodyPedidos = document.querySelector('#table-pedidos tbody');
-            tbodyPedidos.innerHTML = '';
-            pedidos.forEach(p => {
-                let totalSacosPedido = 0;
-                let totalKgPedido = 0;
-
-                let listaProdutosHtml = '<ul class="prod-sublist">';
-                p.itens.forEach(it => {
-                    totalSacosPedido += it.quantidadeSacos;
-                    totalKgPedido += it.pesoTotalKg;
-                    listaProdutosHtml += `<li><strong>${it.quantidadeSacos}x</strong> ${it.produtoNome} <span style="color:#666; font-size:11px;">(${formatNum(it.pesoTotalKg)} kg)</span></li>`;
-                });
-                listaProdutosHtml += '</ul>';
-
-                const statusBadge = p.status === "Em Rota" 
-                    ? `<span class="badge badge-status-rota">Em Rota 🚚</span>`
-                    : `<span class="badge badge-status-pendente">Pendente ⏳</span>`;
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${statusBadge}</td>
-                    <td><span class="badge badge-route">${p.rota}</span></td>
-                    <td><strong>${p.cidade}</strong></td>
-                    <td>${p.cliente}</td>
-                    <td>${listaProdutosHtml}</td>
-                    <td><strong>${formatNum(totalSacosPedido)} sacos/bags</strong></td>
-                    <td><strong>${formatNum(totalKgPedido)} kg</strong></td>
-                    <td>
-                        <div style="display: flex; gap: 6px;">
-                            <button class="btn-warning" onclick="editarPedido(${p.id})">Editar</button>
-                            <button class="btn-danger" onclick="excluirPedido(${p.id})">Excluir</button>
-                        </div>
-                    </td>
-                `;
-                tbodyPedidos.appendChild(tr);
-            });
-
-            const tbodyClientes = document.querySelector('#table-clientes tbody');
-            tbodyClientes.innerHTML = '';
-            clientes.forEach((c, idx) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${idx + 1}</td><td><strong>${c.nome}</strong></td><td>${c.documento}</td><td>${c.cidade}</td><td><button class="btn-danger" onclick="excluirCliente(${c.id})">Excluir</button></td>`;
-                tbodyClientes.appendChild(tr);
-            });
-
-            const tbodyCidades = document.querySelector('#table-cidades tbody');
-            tbodyCidades.innerHTML = '';
-            cidades.forEach((c, idx) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${idx + 1}</td><td><span class="badge badge-route">${c.rota}</span></td><td><strong>${c.nome}</strong></td><td><span class="badge">${c.uf}</span></td><td><button class="btn-danger" onclick="excluirCidade(${c.id})">Excluir</button></td>`;
-                tbodyCidades.appendChild(tr);
-            });
-
-            const tbodyProdutos = document.querySelector('#table-produtos tbody');
-            tbodyProdutos.innerHTML = '';
-            produtos.forEach((p, idx) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${idx + 1}</td><td><strong>${p.nome}</strong></td><td><span class="badge">${p.categoria}</span></td><td>${p.pesoSaco} kg/saco</td><td><button class="btn-danger" onclick="excluirProduto(${p.id})">Excluir</button></td>`;
-                tbodyProdutos.appendChild(tr);
-            });
-
-            exibirRelatorioRota(document.getElementById('relatorio-select-rota').value || 'Rota 01');
-            renderizarGraficos(consolidadoRotas, totalSal, totalRacao, totalSoja);
+            document.getElementById('kpi-total-mes').innerText = `${totalKg.toLocaleString('pt-BR')} kg`;
+            document.getElementById('kpi-sacos-mes').innerText = `${totalSacos.toLocaleString('pt-BR')} sacos/bags`;
+            document.getElementById('kpi-media-semana').innerText = `${mediaSemanal.toLocaleString('pt-BR')} kg`;
+            document.getElementById('kpi-total-clientes').innerText = state.clientes.length;
+            document.getElementById('kpi-total-cidades').innerText = state.cidades.length;
+            document.getElementById('kpi-total-produtos').innerText = state.produtos.length;
         }
 
-        function renderizarGraficos(consolidadoRotas, sal, racao, soja) {
-            const labelsRotas = consolidadoRotas.map(r => r.rota);
-            const dataTotaisRotas = consolidadoRotas.map(r => r.sal + r.racao + r.soja);
-
-            if (barChart) barChart.destroy();
-            const ctxBar = document.getElementById('barChartDemand').getContext('2d');
-            barChart = new Chart(ctxBar, {
-                type: 'bar',
-                data: {
-                    labels: labelsRotas,
-                    datasets: [{
-                        label: 'Demanda Total (kg)',
-                        data: dataTotaisRotas,
-                        backgroundColor: '#1F4E78',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
+        function renderizarGraficos() {
+            const rotas = ['Rota 01', 'Rota 02', 'Rota 03', 'Rota 04', 'Rota 05', 'Rota 06', 'Rota 07', 'Rota 08', 'Rota 09'];
+            const demandaPorRota = rotas.map(rota => {
+                let kg = 0;
+                state.pedidos.filter(p => p.rota === rota).forEach(p => {
+                    p.itens.forEach(item => {
+                        const prod = state.produtos.find(pr => pr.id === item.produtoId);
+                        if (prod) kg += item.quantidade * prod.peso;
+                    });
+                });
+                return kg;
             });
 
-            if (pieChart) pieChart.destroy();
-            const ctxPie = document.getElementById('pieChartMix').getContext('2d');
-            pieChart = new Chart(ctxPie, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Sal Nutricional', 'Ração', 'Farelo de Soja'],
-                    datasets: [{
-                        data: [sal, racao, soja],
-                        backgroundColor: ['#1F4E78', '#2E75B6', '#5B9BD5']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } }
-                }
+            const canvasBar = document.getElementById('barChartDemand');
+            if (canvasBar) {
+                if (barChartInstance) barChartInstance.destroy();
+                barChartInstance = new Chart(canvasBar.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: rotas,
+                        datasets: [{
+                            label: 'Volume Total (kg)',
+                            data: demandaPorRota,
+                            backgroundColor: '#2E75B6',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            let salTotal = 0;
+            let racaoTotal = 0;
+            let sojaTotal = 0;
+
+            state.pedidos.forEach(p => {
+                p.itens.forEach(item => {
+                    const prod = state.produtos.find(pr => pr.id === item.produtoId);
+                    if (prod) {
+                        const sub = item.quantidade * prod.peso;
+                        if (prod.categoria === 'Sal Nutricional') salTotal += sub;
+                        else if (prod.categoria === 'Ração') racaoTotal += sub;
+                        else if (prod.categoria === 'Farelo de Soja') sojaTotal += sub;
+                    }
+                });
             });
+
+            const canvasPie = document.getElementById('pieChartMix');
+            if (canvasPie) {
+                if (pieChartInstance) pieChartInstance.destroy();
+                pieChartInstance = new Chart(canvasPie.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Sal Nutricional', 'Ração', 'Farelo de Soja'],
+                        datasets: [{
+                            data: [salTotal, racaoTotal, sojaTotal],
+                            backgroundColor: ['#1F4E78', '#2E75B6', '#D97706']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { boxWidth: 12, font: { size: 11 } }
+                            }
+                        }
+                    }
+                });
+            }
         }
     </script>
 </body>
