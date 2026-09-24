@@ -422,6 +422,7 @@
             border-radius: 12px;
             border: 1px solid var(--border-color);
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .chart-card h2 {
@@ -429,6 +430,9 @@
             font-weight: 600;
             color: var(--primary-color);
             margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .chart-container {
@@ -468,9 +472,16 @@
             margin-bottom: 16px;
         }
 
+        .form-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
         .product-item-row {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 40px;
+            grid-template-columns: 2.2fr 1fr 1fr 1fr 40px;
             gap: 12px;
             align-items: center;
             background: #F8FAFC;
@@ -612,7 +623,6 @@
             margin-top: 10px;
         }
 
-        /* Estilos e Responsividade para Dispositivos Móveis */
         .mobile-header {
             display: none;
         }
@@ -644,7 +654,7 @@
                 gap: 12px !important;
             }
 
-            .form-grid-3 {
+            .form-grid-3, .form-grid-4 {
                 grid-template-columns: 1fr !important;
             }
 
@@ -716,7 +726,7 @@
             </button>
             <div class="font-bold text-lg tracking-wide">MAXSAL <span class="text-xs font-normal opacity-70">Portal</span></div>
         </div>
-        <span class="text-xs font-semibold bg-amber-600/80 px-2.5 py-1 rounded-full border border-amber-400/30">v2.5</span>
+        <span class="text-xs font-semibold bg-amber-600/80 px-2.5 py-1 rounded-full border border-amber-400/30">v3.1</span>
     </header>
 
     <!-- Overlay / Backdrop para fechar o menu mobile -->
@@ -734,18 +744,18 @@
             <form onsubmit="realizarLogin(event)">
                 <div class="form-group">
                     <label for="username">Usuário</label>
-                    <input type="text" id="username" required placeholder="ID">
+                    <input type="text" id="username" required placeholder="ex: admin">
                 </div>
                 <div class="form-group">
                     <label for="password">Senha</label>
-                    <input type="password" id="password" required placeholder="Senha">
+                    <input type="password" id="password" required placeholder="ex: 123456">
                 </div>
                 <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px; justify-content: center;">Entrar no Sistema</button>
             </form>
             
             <div class="login-hint">
-                
-                Site Desenvolvido por <strong>Diego ramon</strong> 
+                Acesso Demonstrativo:<br>
+                Usuário: <strong>admin</strong> | Senha: <strong>123456</strong>
             </div>
         </div>
     </div>
@@ -757,15 +767,18 @@
                 <div class="sidebar-brand flex justify-between items-center">
                     <div>
                         MAXSAL
-                        <span>Gestão Logística </span>
+                        <span>Gestão Logística v3.1</span>
                     </div>
-                    <!-- Botão fechar no mobile -->
                     <button onclick="toggleMobileSidebar(false)" class="lg:hidden text-white/70 hover:text-white p-1 text-xl">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
                 <ul class="sidebar-menu">
-                    <li class="menu-item active" id="menu-tab-rotas" onclick="switchTab('tab-rotas', this)">
+                    <!-- ÍCONE DESTBOX SOLICITADO NO MENU -->
+                    <li class="menu-item active" id="menu-tab-destbox" onclick="switchTab('tab-destbox', this)">
+                        🖥️ DASHBOARD
+                    </li>
+                    <li class="menu-item" id="menu-tab-rotas" onclick="switchTab('tab-rotas', this)">
                         📦 Lançar Pedidos
                     </li>
                     <li class="menu-item" id="menu-tab-demanda" onclick="switchTab('tab-demanda', this)">
@@ -797,59 +810,76 @@
             </aside>
 
             <main class="main-content">
-                <header class="top-header">
-                    <h1>DASHBOARD LOGÍSTICO E OPERACIONAL</h1>
-                    <p>Visão geral de demandas, rotas, cadastros e saídas mensais</p>
-                </header>
 
-                <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-title">Demanda Pendente (kg)</div>
-                        <div class="kpi-value" id="kpi-total-mes">0 kg</div>
-                        <div class="kpi-subtext" id="kpi-sacos-mes">0 sacos/bags</div>
+                <!-- ABA DESTBOX (PAINEL EXECUTIVO EXCLUSIVO) -->
+                <div id="tab-destbox" class="tab-content active">
+                    <header class="top-header">
+                        <div class="flex justify-between items-start flex-wrap gap-2">
+                            <div>
+                                <h1>LOGISTICA MAXSAL</h1>
+                                <p>Visão geral em tempo real de demandas, rotas, cadastros e saídas operacionais</p>
+                            </div>
+                            <div class="text-xs bg-slate-200/70 text-slate-700 px-3 py-1.5 rounded-md font-semibold flex items-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-arrows-rotate text-blue-600 animate-spin" style="animation-duration: 6s;"></i>
+                                <span>Atualização Automática: <strong id="auto-refresh-timer-label" class="transition-colors duration-300">2 min</strong></span>
+                            </div>
+                        </div>
+                    </header>
+
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-title">Demanda Pendente (kg)</div>
+                            <div class="kpi-value" id="kpi-total-mes">0 kg</div>
+                            <div class="kpi-subtext" id="kpi-sacos-mes">0 sacos/bags</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">Média Semanal</div>
+                            <div class="kpi-value" id="kpi-media-semana">0 kg</div>
+                            <div class="kpi-subtext">Base: 4,3 sem/mês</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">Clientes</div>
+                            <div class="kpi-value" id="kpi-total-clientes">0</div>
+                            <div class="kpi-subtext">Cadastrados</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">Cidades Mapeadas</div>
+                            <div class="kpi-value" id="kpi-total-cidades">0</div>
+                            <div class="kpi-subtext">Distribuídas nas Rotas</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">Produtos</div>
+                            <div class="kpi-value" id="kpi-total-produtos">0</div>
+                            <div class="kpi-subtext">No Portfólio</div>
+                        </div>
                     </div>
-                    <div class="kpi-card">
-                        <div class="kpi-title">Média Semanal</div>
-                        <div class="kpi-value" id="kpi-media-semana">0 kg</div>
-                        <div class="kpi-subtext">Base: 4,3 sem/mês</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-title">Clientes</div>
-                        <div class="kpi-value" id="kpi-total-clientes">0</div>
-                        <div class="kpi-subtext">Cadastrados</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-title">Cidades Mapeadas</div>
-                        <div class="kpi-value" id="kpi-total-cidades">0</div>
-                        <div class="kpi-subtext">Distribuídas nas Rotas</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-title">Produtos</div>
-                        <div class="kpi-value" id="kpi-total-produtos">0</div>
-                        <div class="kpi-subtext">No Portfólio</div>
+
+                    <div class="charts-grid">
+                        <div class="chart-card" id="chart-card-bar">
+                            <h2>
+                                <span>Demanda Pendente por Rota (kg)</span>
+                                <span class="text-xs font-normal text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                                    <i class="fa-solid fa-clock text-blue-600"></i> Auto-Sync 2m
+                                </span>
+                            </h2>
+                            <div class="chart-container">
+                                <canvas id="barChartDemand"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h2>Mix de Produtos Ativos (kg)</h2>
+                            <div class="chart-container">
+                                <canvas id="pieChartMix"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="charts-grid">
-                    <div class="chart-card">
-                        <h2>Demanda Pendente por Rota (kg)</h2>
-                        <div class="chart-container">
-                            <canvas id="barChartDemand"></canvas>
-                        </div>
-                    </div>
-                    <div class="chart-card">
-                        <h2>Mix de Produtos Ativos (kg)</h2>
-                        <div class="chart-container">
-                            <canvas id="pieChartMix"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="tab-rotas" class="tab-content active">
+                <div id="tab-rotas" class="tab-content">
                     <div class="card-panel">
                         <h2>Lançar Pedido na Rota</h2>
                         <form onsubmit="adicionarPedido(event)">
-                            <div class="form-grid-3">
+                            <div class="form-grid-4">
                                 <div class="form-group">
                                     <label for="input-rota">1º Selecione a Rota</label>
                                     <select id="input-rota" required onchange="aoMudarRotaNoPedido()">
@@ -872,10 +902,24 @@
                                     <label for="select-pedido-cliente">3º Cliente / Fazenda</label>
                                     <select id="select-pedido-cliente" required></select>
                                 </div>
+                                <div class="form-group">
+                                    <label for="select-pedido-pagamento">4º Forma de Pagamento</label>
+                                    <select id="select-pedido-pagamento" required>
+                                        <option value="PIX / Á Vista">⚡ PIX / À Vista</option>
+                                        <option value="Boleto 14 Dias">📄 Boleto 14 Dias</option>
+                                        <option value="Boleto 21 Dias">📄 Boleto 21 Dias</option>
+                                        <option value="Boleto 30 Dias">📄 Boleto 30 Dias</option>
+                                        <option value="Boleto 30/60 Dias">📄 Boleto 30/60 Dias</option>
+                                        <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
+                                        <option value="Cheque">✍️ Cheque</option>
+                                        <option value="Bonificado">🎁 Bonificado</option>
+                                        <option value="A Prazo / A Combinar">🤝 A Prazo / A Combinar</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <hr style="border:0; border-top: 1px solid #E2E8F0; margin: 16px 0;">
-                            <h3 style="font-size: 14px; font-weight: 600; color: var(--primary-color); margin-bottom: 12px;">Itens do Pedido (Produtos / Quantidade em Sacos):</h3>
+                            <h3 style="font-size: 14px; font-weight: 600; color: var(--primary-color); margin-bottom: 12px;">Itens do Pedido (Produtos, Quantidade e Preço Unitário):</h3>
                             
                             <div id="produtos-pedido-container"></div>
 
@@ -898,8 +942,9 @@
                                         <th>Cidade / UF</th>
                                         <th>Cliente / Fazenda</th>
                                         <th>Produtos Pedidos (Qtd. Sacos/Bags)</th>
-                                        <th>Total (Sacos/Bags)</th>
+                                        <th>Forma Pagamento</th>
                                         <th>Total (kg)</th>
+                                        <th>Valor Total (R$)</th>
                                         <th>Ações</th>
                                     </tr>
                                 </thead>
@@ -919,9 +964,10 @@
                                     <tr>
                                         <th>Rota (Clique para Detalhar)</th>
                                         <th>Cidades Atendidas nesta Rota</th>
-                                        <th>Sal Nutricional (kg)</th>
+                                        <th>Sal Mineral (kg)</th>
                                         <th>Ração (kg)</th>
-                                        <th>Farelo de Soja (kg)</th>
+                                        <th>Núcleo (kg)</th>
+                                        <th>Atacado (kg)</th>
                                         <th>Total Mensal (kg)</th>
                                         <th>Total (Sacos/Bags)</th>
                                         <th>Média Semanal (kg)</th>
@@ -963,14 +1009,18 @@
                             </div>
                         </div>
 
-                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 16px; border-radius: 8px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 16px; border-radius: 8px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
                             <div>
-                                <span style="font-size: 11px; color: #64748B; font-weight: 600; text-transform: uppercase;">Total de Carga (kg)</span>
+                                <span style="font-size: 11px; color: #64748B; font-weight: 600; text-transform: uppercase;">Total Carga (kg)</span>
                                 <div id="relatorio-total-kg" style="font-size: 18px; font-weight: 700; color: var(--primary-color);">0 kg</div>
                             </div>
                             <div>
                                 <span style="font-size: 11px; color: #64748B; font-weight: 600; text-transform: uppercase;">Total Sacos / Bags</span>
                                 <div id="relatorio-total-sacos" style="font-size: 18px; font-weight: 700; color: var(--primary-color);">0 sacos</div>
+                            </div>
+                            <div>
+                                <span style="font-size: 11px; color: #64748B; font-weight: 600; text-transform: uppercase;">Valor Total Rota</span>
+                                <div id="relatorio-total-valor" style="font-size: 18px; font-weight: 700; color: #059669;">R$ 0,00</div>
                             </div>
                             <div>
                                 <span style="font-size: 11px; color: #64748B; font-weight: 600; text-transform: uppercase;">Clientes Selecionados</span>
@@ -991,6 +1041,7 @@
                                             <th>Nome do Produto</th>
                                             <th>Quantidade Total (Sacos/Bags)</th>
                                             <th>Peso Total Acumulado (kg)</th>
+                                            <th>Valor Estimado (R$)</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -1013,9 +1064,10 @@
                                         <th>Status Rota</th>
                                         <th>Cliente / Fazenda</th>
                                         <th>Cidade</th>
-                                        <th>Resumo dos Produtos Somados</th>
-                                        <th>Subtotal (Sacos/Bags)</th>
+                                        <th>Forma de Pagamento</th>
+                                        <th>Resumo Produtos Somados</th>
                                         <th>Subtotal (kg)</th>
+                                        <th>Valor Total (R$)</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -1125,7 +1177,7 @@
                     <div class="card-panel">
                         <h2>Cadastrar Novo Produto</h2>
                         <form onsubmit="cadastrarProduto(event)">
-                            <div class="form-grid-3">
+                            <div class="form-grid-4">
                                 <div class="form-group">
                                     <label for="novo-produto-nome">Nome do Produto</label>
                                     <input type="text" id="novo-produto-nome" required placeholder="Ex: Sal Mineral 80">
@@ -1133,14 +1185,19 @@
                                 <div class="form-group">
                                     <label for="novo-produto-categoria">Categoria</label>
                                     <select id="novo-produto-categoria" required>
-                                        <option value="Sal Nutricional">Sal Nutricional</option>
+                                        <option value="Sal Mineral">Sal Mineral</option>
                                         <option value="Ração">Ração</option>
-                                        <option value="Farelo de Soja">Farelo de Soja</option>
+                                        <option value="Núcleo">Núcleo</option>
+                                        <option value="Atacado">Atacado</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="novo-produto-peso">Peso por Embalagem/Saco (kg)</label>
                                     <input type="number" id="novo-produto-peso" required placeholder="Ex: 30, 40 ou 1000" min="1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="novo-produto-preco">Preço Base por Saco (R$)</label>
+                                    <input type="number" id="novo-produto-preco" step="0.01" required placeholder="Ex: 85.00" min="0">
                                 </div>
                             </div>
                             <button type="submit" class="btn-primary">+ Salvar Produto</button>
@@ -1157,6 +1214,7 @@
                                         <th>Nome do Produto</th>
                                         <th>Categoria</th>
                                         <th>Peso por Embalagem</th>
+                                        <th>Preço Base Unitário</th>
                                         <th>Ações</th>
                                     </tr>
                                 </thead>
@@ -1223,7 +1281,8 @@ CREATE TABLE IF NOT EXISTS produtos (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     nome TEXT NOT NULL,
     categoria TEXT NOT NULL,
-    peso_saco NUMERIC NOT NULL
+    peso_saco NUMERIC NOT NULL,
+    preco_unitario NUMERIC DEFAULT 0
 );
 
 -- 4. Tabela de Pedidos
@@ -1232,6 +1291,8 @@ CREATE TABLE IF NOT EXISTS pedidos (
     rota TEXT NOT NULL,
     cidade TEXT NOT NULL,
     cliente TEXT NOT NULL,
+    forma_pagamento TEXT,
+    valor_total NUMERIC DEFAULT 0,
     status TEXT NOT NULL,
     itens JSONB NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -1244,6 +1305,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
         </div>
     </div>
 
+    <!-- MODAL DE AVISO / CONFIRMAÇÃO -->
     <div id="modal-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div id="modal-box" class="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-md w-full p-6 transform transition-all">
             <div class="flex items-center gap-3 mb-4">
@@ -1258,8 +1320,9 @@ CREATE TABLE IF NOT EXISTS pedidos (
         </div>
     </div>
 
+    <!-- MODAL EDITAR PEDIDO -->
     <div id="modal-editar-pedido" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 overflow-y-auto">
-        <div class="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-2xl w-full p-6 my-8 transform transition-all max-h-[90vh] flex flex-col">
+        <div class="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-3xl w-full p-6 my-8 transform transition-all max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200">
                 <h3 class="text-lg font-bold text-slate-800">✏️ Editar Pedido #<span id="edit-pedido-id-display"></span></h3>
                 <button type="button" onclick="fecharModalEditarPedido()" class="text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
@@ -1268,7 +1331,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
             <form onsubmit="salvarEdicaoPedido(event)" class="flex-grow overflow-y-auto pr-1">
                 <input type="hidden" id="edit-pedido-id">
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                     <div class="form-group">
                         <label for="edit-pedido-rota">Rota</label>
                         <select id="edit-pedido-rota" required onchange="aoMudarRotaNoModalEdicao()">
@@ -1291,6 +1354,20 @@ CREATE TABLE IF NOT EXISTS pedidos (
                         <label for="edit-pedido-cliente">Cliente / Fazenda</label>
                         <select id="edit-pedido-cliente" required></select>
                     </div>
+                    <div class="form-group">
+                        <label for="edit-pedido-pagamento">Forma Pagamento</label>
+                        <select id="edit-pedido-pagamento" required>
+                            <option value="PIX / Á Vista">⚡ PIX / À Vista</option>
+                            <option value="Boleto 14 Dias">📄 Boleto 14 Dias</option>
+                            <option value="Boleto 21 Dias">📄 Boleto 21 Dias</option>
+                            <option value="Boleto 30 Dias">📄 Boleto 30 Dias</option>
+                            <option value="Boleto 30/60 Dias">📄 Boleto 30/60 Dias</option>
+                            <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
+                            <option value="Cheque">✍️ Cheque</option>
+                            <option value="Bonificado">🎁 Bonificado</option>
+                            <option value="A Prazo / A Combinar">🤝 A Prazo / A Combinar</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group mb-4">
@@ -1303,7 +1380,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
                 </div>
 
                 <hr class="my-4 border-slate-200">
-                <h4 class="text-sm font-semibold text-slate-800 mb-3">Itens do Pedido (Produtos / Quantidade em Sacos):</h4>
+                <h4 class="text-sm font-semibold text-slate-800 mb-3">Itens do Pedido (Produtos / Quantidade em Sacos / Preço):</h4>
                 
                 <div id="edit-produtos-container"></div>
 
@@ -1319,7 +1396,56 @@ CREATE TABLE IF NOT EXISTS pedidos (
         </div>
     </div>
 
+    <!-- MODAL EDITAR PRODUTO -->
+    <div id="modal-editar-produto" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 transform transition-all">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200">
+                <h3 class="text-lg font-bold text-slate-800">✏️ Editar Produto #<span id="edit-produto-id-display"></span></h3>
+                <button type="button" onclick="fecharModalEditarProduto()" class="text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
+            </div>
+            
+            <form onsubmit="salvarEdicaoProduto(event)">
+                <input type="hidden" id="edit-produto-id">
+                
+                <div class="form-group mb-3">
+                    <label for="edit-produto-nome">Nome do Produto</label>
+                    <input type="text" id="edit-produto-nome" required placeholder="Ex: Sal Mineral Nutricional 80">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="edit-produto-categoria">Categoria</label>
+                    <select id="edit-produto-categoria" required>
+                        <option value="Sal Mineral">Sal Mineral</option>
+                        <option value="Ração">Ração</option>
+                        <option value="Núcleo">Núcleo</option>
+                        <option value="Atacado">Atacado</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                    <div class="form-group" style="margin:0;">
+                        <label for="edit-produto-peso">Peso Embalagem (kg)</label>
+                        <input type="number" id="edit-produto-peso" required min="1" placeholder="Ex: 30">
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label for="edit-produto-preco">Preço Unitário Base (R$)</label>
+                        <input type="number" id="edit-produto-preco" step="0.01" required min="0" placeholder="Ex: 85.00">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-3 border-t border-slate-200">
+                    <button type="button" onclick="fecharModalEditarProduto()" class="px-4 py-2 text-sm font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition">Cancelar</button>
+                    <button type="submit" class="btn-primary">💾 Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        // Formatação Numérica e Monetária
+        const formatMoeda = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
+        const formatNum = (val) => new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(val || 0);
+
         // Dados Padrão (utilizados como fallback/semente)
         const cidadesPadrao = [
             { id: 1, rota: "Rota 01", nome: "Aracaju", uf: "SE" },
@@ -1342,9 +1468,10 @@ CREATE TABLE IF NOT EXISTS pedidos (
         ];
 
         const produtosPadrao = [
-            { id: 1, nome: "Sal Mineral Nutricional 80", categoria: "Sal Nutricional", pesoSaco: 30 },
-            { id: 2, nome: "Ração Alto Desempenho 22%", categoria: "Ração", pesoSaco: 40 },
-            { id: 3, nome: "Farelo de Soja Especial", categoria: "Farelo de Soja", pesoSaco: 1000 }
+            { id: 1, nome: "Sal Mineral Nutricional 80", categoria: "Sal Mineral", pesoSaco: 30, precoUnitario: 85.00 },
+            { id: 2, nome: "Ração Alto Desempenho 22%", categoria: "Ração", pesoSaco: 40, precoUnitario: 110.00 },
+            { id: 3, nome: "Núcleo Mineral Concentrado", categoria: "Núcleo", pesoSaco: 25, precoUnitario: 145.00 },
+            { id: 4, nome: "Sal Mineral Atacado (Bag)", categoria: "Atacado", pesoSaco: 1000, precoUnitario: 2200.00 }
         ];
 
         const pedidosPadrao = [
@@ -1353,10 +1480,12 @@ CREATE TABLE IF NOT EXISTS pedidos (
                 rota: "Rota 01", 
                 cidade: "Aracaju - SE",
                 cliente: "Agropecuária Santa Maria", 
+                formaPagamento: "Boleto 30 Dias",
+                valorTotal: 80500.00,
                 status: "Pendente",
                 itens: [
-                    { produtoId: 1, produtoNome: "Sal Mineral Nutricional 80", categoria: "Sal Nutricional", pesoSaco: 30, quantidadeSacos: 300, pesoTotalKg: 9000 },
-                    { produtoId: 2, produtoNome: "Ração Alto Desempenho 22%", categoria: "Ração", pesoSaco: 40, quantidadeSacos: 500, pesoTotalKg: 20000 }
+                    { produtoId: 1, produtoNome: "Sal Mineral Nutricional 80", categoria: "Sal Mineral", pesoSaco: 30, precoUnitario: 85.00, quantidadeSacos: 300, pesoTotalKg: 9000, valorTotalKg: 25500.00 },
+                    { produtoId: 2, produtoNome: "Ração Alto Desempenho 22%", categoria: "Ração", pesoSaco: 40, precoUnitario: 110.00, quantidadeSacos: 500, pesoTotalKg: 20000, valorTotalKg: 55000.00 }
                 ]
             },
             { 
@@ -1364,9 +1493,11 @@ CREATE TABLE IF NOT EXISTS pedidos (
                 rota: "Rota 01", 
                 cidade: "Nossa Senhora do Socorro - SE",
                 cliente: "Grupo Boi Gordo", 
+                formaPagamento: "PIX / Á Vista",
+                valorTotal: 12750.00,
                 status: "Pendente",
                 itens: [
-                    { produtoId: 1, produtoNome: "Sal Mineral Nutricional 80", categoria: "Sal Nutricional", pesoSaco: 30, quantidadeSacos: 150, pesoTotalKg: 4500 }
+                    { produtoId: 1, produtoNome: "Sal Mineral Nutricional 80", categoria: "Sal Mineral", pesoSaco: 30, precoUnitario: 85.00, quantidadeSacos: 150, pesoTotalKg: 4500, valorTotalKg: 12750.00 }
                 ]
             },
             { 
@@ -1374,10 +1505,12 @@ CREATE TABLE IF NOT EXISTS pedidos (
                 rota: "Rota 02", 
                 cidade: "Itabaiana - SE",
                 cliente: "Fazenda São José", 
+                formaPagamento: "Boleto 30/60 Dias",
+                valorTotal: 176000.00,
                 status: "Pendente",
                 itens: [
-                    { produtoId: 2, produtoNome: "Ração Alto Desempenho 22%", categoria: "Ração", pesoSaco: 40, quantidadeSacos: 1000, pesoTotalKg: 40000 },
-                    { produtoId: 3, produtoNome: "Farelo de Soja Especial", categoria: "Farelo de Soja", pesoSaco: 1000, quantidadeSacos: 30, pesoTotalKg: 30000 }
+                    { produtoId: 2, produtoNome: "Ração Alto Desempenho 22%", categoria: "Ração", pesoSaco: 40, precoUnitario: 110.00, quantidadeSacos: 1000, pesoTotalKg: 40000, valorTotalKg: 110000.00 },
+                    { produtoId: 4, produtoNome: "Sal Mineral Atacado (Bag)", categoria: "Atacado", pesoSaco: 1000, precoUnitario: 2200.00, quantidadeSacos: 30, pesoTotalKg: 30000, valorTotalKg: 66000.00 }
                 ]
             },
             { 
@@ -1385,9 +1518,11 @@ CREATE TABLE IF NOT EXISTS pedidos (
                 rota: "Rota 01", 
                 cidade: "São Cristóvão - SE",
                 cliente: "Agropecuária Santa Maria", 
+                formaPagamento: "PIX / Á Vista",
+                valorTotal: 8500.00,
                 status: "Finalizado",
                 itens: [
-                    { produtoId: 1, produtoNome: "Sal Mineral Nutricional 80", categoria: "Sal Nutricional", pesoSaco: 30, quantidadeSacos: 100, pesoTotalKg: 3000 }
+                    { produtoId: 1, produtoNome: "Sal Mineral Nutricional 80", categoria: "Sal Mineral", pesoSaco: 30, precoUnitario: 85.00, quantidadeSacos: 100, pesoTotalKg: 3000, valorTotalKg: 8500.00 }
                 ]
             }
         ];
@@ -1405,6 +1540,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
         let pieChart = null;
         let listaClientesRotaAtiva = [];
         let modalConfirmCallback = null;
+        let autoRefreshInterval = null;
 
         // Controle do Menu Hambúrguer (Mobile)
         function toggleMobileSidebar(forceState) {
@@ -1442,7 +1578,6 @@ CREATE TABLE IF NOT EXISTS pedidos (
                 try {
                     supabaseClient = window.supabase.createClient(urlBD, keyBD);
                     
-                    // Testar conexão buscando a versão ou tabela simples
                     const { data, error } = await supabaseClient.from('cidades').select('id').limit(1);
                     if (!error) {
                         modoConectadoBD = true;
@@ -1455,7 +1590,6 @@ CREATE TABLE IF NOT EXISTS pedidos (
                 }
             }
 
-            // Fallback: Armazenamento Local Persistente (LocalStorage)
             atualizarStatusVisualBD(false);
             
             cidades = JSON.parse(localStorage.getItem('maxsal_cidades')) || cidadesPadrao;
@@ -1491,7 +1625,8 @@ CREATE TABLE IF NOT EXISTS pedidos (
                         id: p.id,
                         nome: p.nome,
                         categoria: p.categoria,
-                        pesoSaco: parseFloat(p.peso_saco)
+                        pesoSaco: parseFloat(p.peso_saco),
+                        precoUnitario: parseFloat(p.preco_unitario || 0)
                     }));
                 }
                 if (resPedidos.data) {
@@ -1500,6 +1635,8 @@ CREATE TABLE IF NOT EXISTS pedidos (
                         rota: p.rota,
                         cidade: p.cidade,
                         cliente: p.cliente,
+                        formaPagamento: p.forma_pagamento || "A Prazo / A Combinar",
+                        valorTotal: parseFloat(p.valor_total || 0),
                         status: p.status,
                         itens: typeof p.itens === 'string' ? JSON.parse(p.itens) : p.itens
                     }));
@@ -1509,6 +1646,42 @@ CREATE TABLE IF NOT EXISTS pedidos (
             } catch (error) {
                 console.error("Erro ao sincronizar com banco de dados:", error);
             }
+        }
+
+        // Timer para Atualização Automática do Dashboard de 2 em 2 minutos com efeito visual no gráfico
+        function iniciarAutoAtualizacaoDashboard() {
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+
+            // Intervalo de 2 minutos (120.000 milissegundos)
+            autoRefreshInterval = setInterval(async () => {
+                if (modoConectadoBD && supabaseClient) {
+                    await sincronizarComBancoDados();
+                } else {
+                    pedidos = JSON.parse(localStorage.getItem('maxsal_pedidos')) || pedidos;
+                }
+
+                // Animação/efeito visual no timer e no card do gráfico ao rodar a sincronização
+                const timerLabel = document.getElementById('auto-refresh-timer-label');
+                if (timerLabel) {
+                    timerLabel.classList.add('text-amber-600', 'font-black');
+                    setTimeout(() => timerLabel.classList.remove('text-amber-600', 'font-black'), 1500);
+                }
+
+                const chartCardBar = document.getElementById('chart-card-bar');
+                if (chartCardBar) {
+                    chartCardBar.style.transform = 'scale(0.985)';
+                    setTimeout(() => {
+                        chartCardBar.style.transform = 'scale(1)';
+                    }, 250);
+                }
+
+                // Força o reinício das posições das colunas para executar a onda sequencial Rota 01 -> Rota 09
+                if (barChart) {
+                    barChart.reset();
+                }
+
+                atualizarSistema();
+            }, 120000);
         }
 
         function atualizarStatusVisualBD(online) {
@@ -1637,7 +1810,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
             const pass = document.getElementById('password').value;
             const errorBox = document.getElementById('login-error');
 
-            if (user === 'Fabrica' && pass === '658610') {
+            if (user === 'admin' && pass === '123456') {
                 errorBox.style.display = 'none';
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-screen').style.display = 'block';
@@ -1651,6 +1824,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
                     if (savedKey) document.getElementById('db-key').value = savedKey;
 
                     atualizarSistema();
+                    iniciarAutoAtualizacaoDashboard();
                     dashboardInicializado = true;
                 }
             } else {
@@ -1659,6 +1833,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
         }
 
         function realizarLogout() {
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
             document.getElementById('dashboard-screen').style.display = 'none';
             document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('username').value = '';
@@ -1678,7 +1853,6 @@ CREATE TABLE IF NOT EXISTS pedidos (
                 if (menuItem) menuItem.classList.add('active');
             }
 
-            // Fechar menu lateral automaticamente no mobile ao navegar
             toggleMobileSidebar(false);
         }
 
@@ -1706,42 +1880,43 @@ CREATE TABLE IF NOT EXISTS pedidos (
             const agrupadoPorCliente = {};
 
             pedidosRota.forEach(p => {
-                if (!agrupadoPorCliente[p.cliente]) {
-                    agrupadoPorCliente[p.cliente] = {
+                const chave = `${p.cliente}___${p.id}`;
+                if (!agrupadoPorCliente[chave]) {
+                    agrupadoPorCliente[chave] = {
                         cliente: p.cliente,
                         cidade: p.cidade,
+                        formaPagamento: p.formaPagamento || "A Prazo / A Combinar",
                         produtosMap: {},
                         totalSacos: 0,
                         totalKg: 0,
+                        totalValorR$: 0,
                         selecionado: true,
-                        pedidosIds: [],
-                        todosEmRota: true,
-                        todosFinalizados: true
+                        pedidosIds: [p.id],
+                        todosEmRota: p.status === "Em Rota",
+                        todosFinalizados: p.status === "Finalizado"
                     };
                 }
 
-                agrupadoPorCliente[p.cliente].pedidosIds.push(p.id);
-                if (p.status !== "Em Rota") {
-                    agrupadoPorCliente[p.cliente].todosEmRota = false;
-                }
-                if (p.status !== "Finalizado") {
-                    agrupadoPorCliente[p.cliente].todosFinalizados = false;
-                }
-
                 p.itens.forEach(it => {
-                    agrupadoPorCliente[p.cliente].totalSacos += it.quantidadeSacos;
-                    agrupadoPorCliente[p.cliente].totalKg += it.pesoTotalKg;
+                    const preco = it.precoUnitario || 0;
+                    const valItem = it.valorTotalKg || (it.quantidadeSacos * preco);
 
-                    if (!agrupadoPorCliente[p.cliente].produtosMap[it.produtoNome]) {
-                        agrupadoPorCliente[p.cliente].produtosMap[it.produtoNome] = {
+                    agrupadoPorCliente[chave].totalSacos += it.quantidadeSacos;
+                    agrupadoPorCliente[chave].totalKg += it.pesoTotalKg;
+                    agrupadoPorCliente[chave].totalValorR$ += valItem;
+
+                    if (!agrupadoPorCliente[chave].produtosMap[it.produtoNome]) {
+                        agrupadoPorCliente[chave].produtosMap[it.produtoNome] = {
                             nome: it.produtoNome,
                             sacos: 0,
-                            kg: 0
+                            kg: 0,
+                            valTotal: 0
                         };
                     }
 
-                    agrupadoPorCliente[p.cliente].produtosMap[it.produtoNome].sacos += it.quantidadeSacos;
-                    agrupadoPorCliente[p.cliente].produtosMap[it.produtoNome].kg += it.pesoTotalKg;
+                    agrupadoPorCliente[chave].produtosMap[it.produtoNome].sacos += it.quantidadeSacos;
+                    agrupadoPorCliente[chave].produtosMap[it.produtoNome].kg += it.pesoTotalKg;
+                    agrupadoPorCliente[chave].produtosMap[it.produtoNome].valTotal += valItem;
                 });
             });
 
@@ -1752,12 +1927,11 @@ CREATE TABLE IF NOT EXISTS pedidos (
         }
 
         function renderizarTabelaRelatorio() {
-            const formatNum = (val) => new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(val);
             const tbodyRel = document.querySelector('#table-relatorio-rota-clientes tbody');
             tbodyRel.innerHTML = '';
 
             if (listaClientesRotaAtiva.length === 0) {
-                tbodyRel.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #94A3B8; padding: 24px;">Nenhum pedido encontrado para o filtro selecionado nesta rota.</td></tr>`;
+                tbodyRel.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #94A3B8; padding: 24px;">Nenhum pedido encontrado para o filtro selecionado nesta rota.</td></tr>`;
                 recalcularTotaisRelatorio();
                 return;
             }
@@ -1765,7 +1939,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
             listaClientesRotaAtiva.forEach((c, idx) => {
                 let resumoProdsHtml = '<ul class="prod-sublist">';
                 Object.values(c.produtosMap).forEach(prod => {
-                    resumoProdsHtml += `<li><strong>${prod.sacos}x</strong> ${prod.nome} <span style="color:#64748B;">(${formatNum(prod.kg)} kg)</span></li>`;
+                    resumoProdsHtml += `<li><strong>${prod.sacos}x</strong> ${prod.nome} <span style="color:#64748B;">(${formatNum(prod.kg)} kg - ${formatMoeda(prod.valTotal)})</span></li>`;
                 });
                 resumoProdsHtml += '</ul>';
 
@@ -1791,9 +1965,10 @@ CREATE TABLE IF NOT EXISTS pedidos (
                     <td>${statusBadge}</td>
                     <td><strong>${c.cliente}</strong></td>
                     <td>${c.cidade}</td>
+                    <td><span class="badge" style="background: #E0F2FE; color: #0369A1;">💳 ${c.formaPagamento}</span></td>
                     <td>${resumoProdsHtml}</td>
-                    <td><strong>${formatNum(c.totalSacos)} sacos/bags</strong></td>
-                    <td><strong style="color: var(--primary-color);">${formatNum(c.totalKg)} kg</strong></td>
+                    <td><strong>${formatNum(c.totalKg)} kg</strong> <br><span style="font-size:11px; color:#64748B;">(${formatNum(c.totalSacos)} sacos)</span></td>
+                    <td><strong style="color: #059669; font-size: 15px;">${formatMoeda(c.totalValorR$)}</strong></td>
                 `;
                 tbodyRel.appendChild(tr);
             });
@@ -1832,10 +2007,9 @@ CREATE TABLE IF NOT EXISTS pedidos (
         }
 
         function recalcularTotaisRelatorio() {
-            const formatNum = (val) => new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(val);
-
             let totalKg = 0;
             let totalSacos = 0;
+            let totalValorR$ = 0;
             let totalClientes = 0;
             const produtosAgrupadosTotais = {};
 
@@ -1843,6 +2017,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
                 if (c.selecionado) {
                     totalKg += c.totalKg;
                     totalSacos += c.totalSacos;
+                    totalValorR$ += c.totalValorR$;
                     totalClientes++;
 
                     Object.values(c.produtosMap).forEach(prod => {
@@ -1850,17 +2025,20 @@ CREATE TABLE IF NOT EXISTS pedidos (
                             produtosAgrupadosTotais[prod.nome] = {
                                 nome: prod.nome,
                                 sacos: 0,
-                                kg: 0
+                                kg: 0,
+                                valTotal: 0
                             };
                         }
                         produtosAgrupadosTotais[prod.nome].sacos += prod.sacos;
                         produtosAgrupadosTotais[prod.nome].kg += prod.kg;
+                        produtosAgrupadosTotais[prod.nome].valTotal += prod.valTotal;
                     });
                 }
             });
 
             document.getElementById('relatorio-total-kg').innerText = formatNum(totalKg) + ' kg';
             document.getElementById('relatorio-total-sacos').innerText = formatNum(totalSacos) + ' sacos';
+            document.getElementById('relatorio-total-valor').innerText = formatMoeda(totalValorR$);
             document.getElementById('relatorio-total-clientes').innerText = totalClientes;
 
             const tbodyResumoProd = document.querySelector('#table-resumo-produtos-rota tbody');
@@ -1869,7 +2047,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
             const listaProdutosSum = Object.values(produtosAgrupadosTotais);
 
             if (listaProdutosSum.length === 0) {
-                tbodyResumoProd.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #94A3B8; padding: 12px;">Nenhum produto selecionado.</td></tr>`;
+                tbodyResumoProd.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #94A3B8; padding: 12px;">Nenhum produto selecionado.</td></tr>`;
             } else {
                 listaProdutosSum.forEach(prodSum => {
                     const tr = document.createElement('tr');
@@ -1877,6 +2055,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
                         <td><strong>${prodSum.nome}</strong></td>
                         <td><strong style="color: var(--primary-color);">${formatNum(prodSum.sacos)} sacos/bags</strong></td>
                         <td><strong>${formatNum(prodSum.kg)} kg</strong></td>
+                        <td><strong style="color: #059669;">${formatMoeda(prodSum.valTotal)}</strong></td>
                     `;
                     tbodyResumoProd.appendChild(tr);
                 });
@@ -1914,23 +2093,20 @@ CREATE TABLE IF NOT EXISTS pedidos (
         }
 
         function abrirManifestoRotaEmNovaAba(nomeRota, selecionados) {
-            const formatNum = (val) => new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(val);
+            let numRomaneio = parseInt(localStorage.getItem('maxsal_romaneio_counter') || '1001');
+            const codigoDocumento = `ROM-${String(numRomaneio).padStart(6, '0')}`;
+            localStorage.setItem('maxsal_romaneio_counter', (numRomaneio + 1).toString());
+
             const dataHoraEmissao = new Date().toLocaleString('pt-BR');
 
             let totalKg = 0;
             let totalSacos = 0;
-            const prodResumo = {};
+            let totalGeralReais = 0;
 
             selecionados.forEach(c => {
                 totalKg += c.totalKg;
                 totalSacos += c.totalSacos;
-                Object.values(c.produtosMap).forEach(p => {
-                    if (!prodResumo[p.nome]) {
-                        prodResumo[p.nome] = { nome: p.nome, sacos: 0, kg: 0 };
-                    }
-                    prodResumo[p.nome].sacos += p.sacos;
-                    prodResumo[p.nome].kg += p.kg;
-                });
+                totalGeralReais += c.totalValorR$;
             });
 
             const win = window.open('', '_blank');
@@ -1939,43 +2115,47 @@ CREATE TABLE IF NOT EXISTS pedidos (
                 return;
             }
 
-            let htmlConsolidado = Object.values(prodResumo).map(p => `
-                <tr>
-                    <td style="padding: 10px 12px; border-bottom: 1px solid #E2E8F0; font-weight: 600;">${p.nome}</td>
-                    <td style="padding: 10px 12px; border-bottom: 1px solid #E2E8F0; text-align: center; font-weight: 700; color: #1F4E78;">${formatNum(p.sacos)} sacos/bags</td>
-                    <td style="padding: 10px 12px; border-bottom: 1px solid #E2E8F0; text-align: right; font-weight: 700;">${formatNum(p.kg)} kg</td>
-                </tr>
-            `).join('');
-
             let htmlClientes = selecionados.map((c, idx) => {
                 let prodsList = Object.values(c.produtosMap).map(p => 
-                    `<li style="margin-bottom: 4px;"><strong>${p.sacos}x</strong> ${p.nome} <span style="color:#64748B;">(${formatNum(p.kg)} kg)</span></li>`
+                    `<li style="margin-bottom: 6px;"><strong>${p.sacos}x</strong> ${p.nome} <span style="color:#64748B;">(${formatNum(p.kg)} kg)</span> &mdash; <strong style="color: #059669;">Subtotal: ${formatMoeda(p.valTotal)}</strong></li>`
                 ).join('');
 
                 return `
-                    <div style="border: 1px solid #CBD5E1; border-radius: 8px; padding: 16px; margin-bottom: 16px; background-color: #FFFFFF; page-break-inside: avoid;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #E2E8F0; padding-bottom: 8px; margin-bottom: 12px;">
+                    <div style="border: 2px solid #CBD5E1; border-radius: 10px; padding: 18px; margin-bottom: 20px; background-color: #FFFFFF; page-break-inside: avoid; box-shadow: 0 2px 5px rgba(0,0,0,0.03);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed #E2E8F0; padding-bottom: 10px; margin-bottom: 14px;">
                             <div>
-                                <span style="background: #1F4E78; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">Entrega #${idx + 1}</span>
-                                <strong style="font-size: 16px; margin-left: 8px; color: #0F172A;">${c.cliente}</strong>
+                                <span style="background: #1F4E78; color: white; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 13px;">Entrega #${idx + 1}</span>
+                                <strong style="font-size: 18px; margin-left: 10px; color: #0F172A;">${c.cliente}</strong>
                             </div>
-                            <span style="font-size: 13px; font-weight: 600; color: #475569;">📍 Cidade: ${c.cidade}</span>
+                            <span style="font-size: 13px; font-weight: 700; color: #475569; background: #F1F5F9; padding: 4px 10px; border-radius: 6px;">📍 Cidade: ${c.cidade}</span>
                         </div>
                         
-                        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; align-items: center;">
+                        <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 16px; align-items: flex-start;">
                             <div>
-                                <strong style="font-size: 11px; text-transform: uppercase; color: #64748B; letter-spacing: 0.5px;">Itens para Descarregamento:</strong>
-                                <ul style="margin-top: 6px; padding-left: 18px; font-size: 13px; color: #334155;">
+                                <strong style="font-size: 11px; text-transform: uppercase; color: #64748B; letter-spacing: 0.5px;">Itens para Descarregamento e Valores:</strong>
+                                <ul style="margin-top: 8px; padding-left: 18px; font-size: 13px; color: #334155;">
                                     ${prodsList}
                                 </ul>
-                                <div style="margin-top: 10px; font-size: 13px; font-weight: bold; color: #1F4E78; background: #F1F5F9; padding: 6px 10px; border-radius: 6px; display: inline-block;">
-                                    Subtotal Cliente: ${formatNum(c.totalSacos)} sacos/bags (${formatNum(c.totalKg)} kg)
+
+                                <div style="margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px;">
+                                    <div style="font-size: 12px; font-weight: 700; color: #1F4E78; background: #EFF6FF; border: 1px solid #BFDBFE; padding: 6px 12px; border-radius: 6px;">
+                                        📦 Volume Pedido: ${formatNum(c.totalSacos)} sacos (${formatNum(c.totalKg)} kg)
+                                    </div>
+                                    <div style="font-size: 12px; font-weight: 700; color: #0369A1; background: #E0F2FE; border: 1px solid #BAE6FD; padding: 6px 12px; border-radius: 6px;">
+                                        💳 Forma de Pagamento: ${c.formaPagamento || 'A Prazo / A Combinar'}
+                                    </div>
+                                    <div style="font-size: 13px; font-weight: 800; color: #047857; background: #D1FAE5; border: 1px solid #6EE7B7; padding: 6px 14px; border-radius: 6px;">
+                                        💰 Valor Total do Pedido: ${formatMoeda(c.totalValorR$)}
+                                    </div>
                                 </div>
                             </div>
-                            <div style="border-left: 1px dashed #CBD5E1; padding-left: 16px;">
-                                <span style="font-size: 11px; color: #64748B; text-transform: uppercase; display: block; margin-bottom: 28px; font-weight: 600;">Assinatura do Recebedor:</span>
-                                <div style="border-bottom: 1px solid #334155; margin-bottom: 6px; width: 100%;"></div>
-                                <div style="display: flex; justify-content: space-between; font-size: 10px; color: #64748B;">
+
+                            <div style="border-left: 1px dashed #CBD5E1; padding-left: 16px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <span style="font-size: 11px; color: #64748B; text-transform: uppercase; display: block; margin-bottom: 32px; font-weight: 700;">Assinatura do Recebedor:</span>
+                                    <div style="border-bottom: 1.5px solid #334155; margin-bottom: 8px; width: 100%;"></div>
+                                </div>
+                                <div style="font-size: 10px; color: #64748B; display: flex; justify-content: space-between;">
                                     <span>Nome: _________________</span>
                                     <span>Data: ___/___/______</span>
                                 </div>
@@ -1990,7 +2170,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
                 <html lang="pt-BR">
                 <head>
                     <meta charset="UTF-8">
-                    <title>Manifesto de Rota - ${nomeRota}</title>
+                    <title>Manifesto de Rota - ${codigoDocumento}</title>
                     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
                     <style>
                         * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -2013,7 +2193,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
                     <div class="container">
                         <div class="no-print" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 14px 20px; border-radius: 8px; border: 1px solid #E2E8F0; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
                             <div>
-                                <strong style="color: #1F4E78; font-size: 15px;">🚚 Manifesto de Rota em Execução</strong>
+                                <strong style="color: #1F4E78; font-size: 15px;">🚚 Manifesto de Rota em Execução (Doc: ${codigoDocumento})</strong>
                                 <span style="font-size: 13px; color: #64748B; display: block; margin-top: 2px;">Documento gerado em nova aba para conferência e transporte.</span>
                             </div>
                             <div>
@@ -2030,40 +2210,31 @@ CREATE TABLE IF NOT EXISTS pedidos (
                                 </div>
                                 <div style="text-align: right;">
                                     <span style="background: #1F4E78; color: white; font-size: 16px; font-weight: 700; padding: 6px 14px; border-radius: 6px; display: inline-block;">${nomeRota}</span>
-                                    <div style="font-size: 12px; color: #64748B; margin-top: 6px; font-weight: 500;">Emissão: ${dataHoraEmissao}</div>
+                                    <div style="font-size: 13px; font-weight: 800; color: #D97706; margin-top: 6px; font-family: monospace;">Nº DOC: ${codigoDocumento}</div>
+                                    <div style="font-size: 11px; color: #64748B; margin-top: 2px; font-weight: 500;">Emissão: ${dataHoraEmissao}</div>
                                 </div>
                             </div>
 
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; background: #F1F5F9; padding: 16px; border-radius: 8px; text-align: center; margin-bottom: 24px;">
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; background: #F1F5F9; padding: 16px; border-radius: 8px; text-align: center; margin-bottom: 24px;">
                                 <div>
-                                    <span style="font-size: 11px; text-transform: uppercase; color: #64748B; font-weight: 700;">Peso Total Embarcado</span>
-                                    <div style="font-size: 22px; font-weight: 800; color: #1F4E78; margin-top: 2px;">${formatNum(totalKg)} kg</div>
+                                    <span style="font-size: 11px; text-transform: uppercase; color: #64748B; font-weight: 700;">Peso Embarcado</span>
+                                    <div style="font-size: 20px; font-weight: 800; color: #1F4E78; margin-top: 2px;">${formatNum(totalKg)} kg</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; text-transform: uppercase; color: #64748B; font-weight: 700;">Volume de Sacos/Bags</span>
-                                    <div style="font-size: 22px; font-weight: 800; color: #1F4E78; margin-top: 2px;">${formatNum(totalSacos)} sacos</div>
+                                    <span style="font-size: 11px; text-transform: uppercase; color: #64748B; font-weight: 700;">Volume Total</span>
+                                    <div style="font-size: 20px; font-weight: 800; color: #1F4E78; margin-top: 2px;">${formatNum(totalSacos)} sacos</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; text-transform: uppercase; color: #64748B; font-weight: 700;">Total de Entregas</span>
-                                    <div style="font-size: 22px; font-weight: 800; color: #1F4E78; margin-top: 2px;">${selecionados.length} clientes</div>
+                                    <span style="font-size: 11px; text-transform: uppercase; color: #64748B; font-weight: 700;">Valor Total Carga</span>
+                                    <div style="font-size: 20px; font-weight: 800; color: #047857; margin-top: 2px;">${formatMoeda(totalGeralReais)}</div>
+                                </div>
+                                <div>
+                                    <span style="font-size: 11px; text-transform: uppercase; color: #64748B; font-weight: 700;">Total Entregas</span>
+                                    <div style="font-size: 20px; font-weight: 800; color: #1F4E78; margin-top: 2px;">${selecionados.length} clientes</div>
                                 </div>
                             </div>
 
-                            <h3 style="font-size: 15px; color: #1F4E78; border-left: 4px solid #1F4E78; padding-left: 10px; margin-bottom: 12px; font-weight: 700;">📦 RESUMO DE CONFERÊNCIA E CARREGAMENTO DO CAMINHÃO</h3>
-                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 28px; font-size: 14px;">
-                                <thead>
-                                    <tr style="background: #1F4E78; color: white;">
-                                        <th style="padding: 10px 12px; text-align: left; font-size: 12px; text-transform: uppercase;">Produto</th>
-                                        <th style="padding: 10px 12px; text-align: center; font-size: 12px; text-transform: uppercase;">Quantidade (Sacos/Bags)</th>
-                                        <th style="padding: 10px 12px; text-align: right; font-size: 12px; text-transform: uppercase;">Peso Acumulado (kg)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${htmlConsolidado}
-                                </tbody>
-                            </table>
-
-                            <h3 style="font-size: 15px; color: #1F4E78; border-left: 4px solid #1F4E78; padding-left: 10px; margin-bottom: 14px; font-weight: 700;">📋 DETALHAMENTO DAS ENTREGAS POR CLIENTE</h3>
+                            <h3 style="font-size: 15px; color: #1F4E78; border-left: 4px solid #1F4E78; padding-left: 10px; margin-bottom: 14px; font-weight: 700;">📋 DETALHAMENTO DAS ENTREGAS POR CLIENTE (COM FORMA DE PAGAMENTO E VALOR)</h3>
                             ${htmlClientes}
 
                             <div style="margin-top: 40px; border-top: 1px solid #E2E8F0; padding-top: 24px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; color: #64748B; page-break-inside: avoid;">
@@ -2145,7 +2316,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
             const container = document.getElementById('produtos-pedido-container');
             const rowId = 'prod-row-' + Date.now() + Math.random().toString(36).substring(2, 5);
 
-            let optionsHtml = produtos.map(p => `<option value="${p.id}">${p.nome} (${p.categoria} - ${p.pesoSaco}kg/saco)</option>`).join('');
+            let optionsHtml = produtos.map(p => `<option value="${p.id}" data-preco="${p.precoUnitario || 0}">${p.nome} (${p.categoria} - ${p.pesoSaco}kg)</option>`).join('');
 
             const row = document.createElement('div');
             row.className = 'product-item-row';
@@ -2153,21 +2324,37 @@ CREATE TABLE IF NOT EXISTS pedidos (
             row.innerHTML = `
                 <div class="form-group" style="margin:0;">
                     <label>Produto</label>
-                    <select class="sel-prod" onchange="atualizarSacosKgCalculo('${rowId}')">${optionsHtml}</select>
+                    <select class="sel-prod" onchange="aoSelecionarProdutoNaLinha('${rowId}')">${optionsHtml}</select>
                 </div>
                 <div class="form-group" style="margin:0;">
                     <label>Qtd. Sacos/Bags</label>
                     <input type="number" class="ipt-sacos" min="1" value="10" oninput="atualizarSacosKgCalculo('${rowId}')">
                 </div>
                 <div class="form-group" style="margin:0;">
-                    <label>Total (kg)</label>
-                    <input type="text" class="ipt-kg" readonly style="background:#E2E8F0; font-weight:600;">
+                    <label>Preço Unit. (R$)</label>
+                    <input type="number" step="0.01" class="ipt-preco" min="0" value="0" oninput="atualizarSacosKgCalculo('${rowId}')">
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label>Subtotal (R$ / kg)</label>
+                    <input type="text" class="ipt-kg" readonly style="background:#E2E8F0; font-weight:700; color:#047857;">
                 </div>
                 <div style="padding-top: 18px;">
                     <button type="button" class="btn-danger" style="padding: 10px 12px;" onclick="removerLinhaProduto('${rowId}')">✕</button>
                 </div>
             `;
             container.appendChild(row);
+            aoSelecionarProdutoNaLinha(rowId);
+        }
+
+        function aoSelecionarProdutoNaLinha(rowId) {
+            const row = document.getElementById(rowId);
+            if (!row) return;
+
+            const prodId = parseInt(row.querySelector('.sel-prod').value);
+            const prodObj = produtos.find(p => p.id === prodId);
+            if (prodObj) {
+                row.querySelector('.ipt-preco').value = prodObj.precoUnitario || 0;
+            }
             atualizarSacosKgCalculo(rowId);
         }
 
@@ -2189,11 +2376,13 @@ CREATE TABLE IF NOT EXISTS pedidos (
 
             const prodId = parseInt(row.querySelector('.sel-prod').value);
             const sacos = parseFloat(row.querySelector('.ipt-sacos').value) || 0;
+            const preco = parseFloat(row.querySelector('.ipt-preco').value) || 0;
             const prodObj = produtos.find(p => p.id === prodId);
 
             if (prodObj) {
                 const totalKg = sacos * prodObj.pesoSaco;
-                row.querySelector('.ipt-kg').value = new Intl.NumberFormat('pt-BR').format(totalKg) + ' kg';
+                const totalRs = sacos * preco;
+                row.querySelector('.ipt-kg').value = `${formatMoeda(totalRs)} (${formatNum(totalKg)} kg)`;
             }
         }
 
@@ -2271,12 +2460,14 @@ CREATE TABLE IF NOT EXISTS pedidos (
             const nome = document.getElementById('novo-produto-nome').value;
             const categoria = document.getElementById('novo-produto-categoria').value;
             const pesoSaco = parseFloat(document.getElementById('novo-produto-peso').value) || 30;
+            const precoUnitario = parseFloat(document.getElementById('novo-produto-preco').value) || 0;
 
             if (modoConectadoBD && supabaseClient) {
                 const { data, error } = await supabaseClient.from('produtos').insert([{
                     nome,
                     categoria,
-                    peso_saco: pesoSaco
+                    peso_saco: pesoSaco,
+                    preco_unitario: precoUnitario
                 }]).select();
 
                 if (!error && data) {
@@ -2284,17 +2475,74 @@ CREATE TABLE IF NOT EXISTS pedidos (
                         id: data[0].id,
                         nome: data[0].nome,
                         categoria: data[0].categoria,
-                        pesoSaco: parseFloat(data[0].peso_saco)
+                        pesoSaco: parseFloat(data[0].peso_saco),
+                        precoUnitario: parseFloat(data[0].preco_unitario || 0)
                     });
                 }
             } else {
-                produtos.push({ id: Date.now(), nome, categoria, pesoSaco });
+                produtos.push({ id: Date.now(), nome, categoria, pesoSaco, precoUnitario });
             }
 
             document.getElementById('novo-produto-nome').value = '';
             document.getElementById('novo-produto-peso').value = '';
+            document.getElementById('novo-produto-preco').value = '';
             atualizarSistema();
             exibirAviso('Produto cadastrado com sucesso!', 'Sucesso', 'sucesso');
+        }
+
+        function editarProduto(id) {
+            const prod = produtos.find(p => p.id === id);
+            if (!prod) return;
+
+            document.getElementById('edit-produto-id').value = prod.id;
+            document.getElementById('edit-produto-id-display').innerText = prod.id;
+            document.getElementById('edit-produto-nome').value = prod.nome;
+            document.getElementById('edit-produto-categoria').value = prod.categoria || 'Sal Mineral';
+            document.getElementById('edit-produto-peso').value = prod.pesoSaco || 30;
+            document.getElementById('edit-produto-preco').value = prod.precoUnitario || 0;
+
+            document.getElementById('modal-editar-produto').classList.remove('hidden');
+        }
+
+        function fecharModalEditarProduto() {
+            document.getElementById('modal-editar-produto').classList.add('hidden');
+        }
+
+        async function salvarEdicaoProduto(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('edit-produto-id').value);
+            const prodIndex = produtos.findIndex(p => p.id === id);
+
+            if (prodIndex === -1) {
+                exibirAviso('Produto não encontrado para edição.', 'Erro', 'erro');
+                return;
+            }
+
+            const nome = document.getElementById('edit-produto-nome').value.trim();
+            const categoria = document.getElementById('edit-produto-categoria').value;
+            const pesoSaco = parseFloat(document.getElementById('edit-produto-peso').value) || 30;
+            const precoUnitario = parseFloat(document.getElementById('edit-produto-preco').value) || 0;
+
+            produtos[prodIndex] = {
+                ...produtos[prodIndex],
+                nome,
+                categoria,
+                pesoSaco,
+                precoUnitario
+            };
+
+            if (modoConectadoBD && supabaseClient) {
+                await supabaseClient.from('produtos').update({
+                    nome,
+                    categoria,
+                    peso_saco: pesoSaco,
+                    preco_unitario: precoUnitario
+                }).eq('id', id);
+            }
+
+            fecharModalEditarProduto();
+            atualizarSistema();
+            exibirAviso('Produto alterado com sucesso!', 'Sucesso', 'sucesso');
         }
 
         function excluirProduto(id) {
@@ -2314,6 +2562,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
             const rota = document.getElementById('input-rota').value;
             const cidade = document.getElementById('select-pedido-cidade').value;
             const cliente = document.getElementById('select-pedido-cliente').value;
+            const formaPagamento = document.getElementById('select-pedido-pagamento').value;
 
             if (!cidade || cidade.includes('Nenhuma cidade')) {
                 exibirAviso('Cadastre cidades nesta rota antes de efetuar o lançamento!', 'Aviso', 'erro');
@@ -2322,20 +2571,27 @@ CREATE TABLE IF NOT EXISTS pedidos (
 
             const rows = document.querySelectorAll('#produtos-pedido-container .product-item-row');
             let itens = [];
+            let valorTotalPedido = 0;
 
             rows.forEach(row => {
                 const prodId = parseInt(row.querySelector('.sel-prod').value);
                 const quantidadeSacos = parseFloat(row.querySelector('.ipt-sacos').value) || 0;
+                const precoUnitario = parseFloat(row.querySelector('.ipt-preco').value) || 0;
                 const prodObj = produtos.find(p => p.id === prodId);
 
                 if (prodObj && quantidadeSacos > 0) {
+                    const subtotalRs = quantidadeSacos * precoUnitario;
+                    valorTotalPedido += subtotalRs;
+
                     itens.push({
                         produtoId: prodObj.id,
                         produtoNome: prodObj.nome,
                         categoria: prodObj.categoria,
                         pesoSaco: prodObj.pesoSaco,
+                        precoUnitario: precoUnitario,
                         quantidadeSacos: quantidadeSacos,
-                        pesoTotalKg: quantidadeSacos * prodObj.pesoSaco
+                        pesoTotalKg: quantidadeSacos * prodObj.pesoSaco,
+                        valorTotalKg: subtotalRs
                     });
                 }
             });
@@ -2349,12 +2605,23 @@ CREATE TABLE IF NOT EXISTS pedidos (
                 rota,
                 cidade,
                 cliente,
+                formaPagamento,
+                valorTotal: valorTotalPedido,
                 status: "Pendente",
                 itens
             };
 
             if (modoConectadoBD && supabaseClient) {
-                const { data, error } = await supabaseClient.from('pedidos').insert([novoPedido]).select();
+                const { data, error } = await supabaseClient.from('pedidos').insert([{
+                    rota,
+                    cidade,
+                    cliente,
+                    forma_pagamento: formaPagamento,
+                    valor_total: valorTotalPedido,
+                    status: "Pendente",
+                    itens
+                }]).select();
+
                 if (!error && data) {
                     pedidos.push({
                         id: data[0].id,
@@ -2398,6 +2665,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
             selCliente.innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
             selCliente.value = ped.cliente;
 
+            document.getElementById('edit-pedido-pagamento').value = ped.formaPagamento || "A Prazo / A Combinar";
             document.getElementById('edit-pedido-status').value = ped.status || 'Pendente';
 
             const container = document.getElementById('edit-produtos-container');
@@ -2405,7 +2673,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
             
             if (ped.itens && ped.itens.length > 0) {
                 ped.itens.forEach(it => {
-                    adicionarLinhaProdutoModal(it.produtoId, it.quantidadeSacos);
+                    adicionarLinhaProdutoModal(it.produtoId, it.quantidadeSacos, it.precoUnitario);
                 });
             } else {
                 adicionarLinhaProdutoModal();
@@ -2433,11 +2701,11 @@ CREATE TABLE IF NOT EXISTS pedidos (
             }
         }
 
-        function adicionarLinhaProdutoModal(prodIdPadrao = null, qtdPadrao = 10) {
+        function adicionarLinhaProdutoModal(prodIdPadrao = null, qtdPadrao = 10, precoPadrao = null) {
             const container = document.getElementById('edit-produtos-container');
             const rowId = 'edit-prod-row-' + Date.now() + Math.random().toString(36).substring(2, 5);
 
-            let optionsHtml = produtos.map(p => `<option value="${p.id}">${p.nome} (${p.categoria} - ${p.pesoSaco}kg/saco)</option>`).join('');
+            let optionsHtml = produtos.map(p => `<option value="${p.id}">${p.nome} (${p.categoria} - ${p.pesoSaco}kg)</option>`).join('');
 
             const row = document.createElement('div');
             row.className = 'product-item-row';
@@ -2445,15 +2713,19 @@ CREATE TABLE IF NOT EXISTS pedidos (
             row.innerHTML = `
                 <div class="form-group" style="margin:0;">
                     <label>Produto</label>
-                    <select class="sel-prod" onchange="atualizarSacosKgCalculoModal('${rowId}')">${optionsHtml}</select>
+                    <select class="sel-prod" onchange="aoSelecionarProdutoNaLinhaModal('${rowId}')">${optionsHtml}</select>
                 </div>
                 <div class="form-group" style="margin:0;">
                     <label>Qtd. Sacos/Bags</label>
                     <input type="number" class="ipt-sacos" min="1" value="${qtdPadrao}" oninput="atualizarSacosKgCalculoModal('${rowId}')">
                 </div>
                 <div class="form-group" style="margin:0;">
-                    <label>Total (kg)</label>
-                    <input type="text" class="ipt-kg" readonly style="background:#E2E8F0; font-weight:600;">
+                    <label>Preço Unit. (R$)</label>
+                    <input type="number" step="0.01" class="ipt-preco" min="0" value="${precoPadrao !== null ? precoPadrao : 0}" oninput="atualizarSacosKgCalculoModal('${rowId}')">
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label>Subtotal (R$ / kg)</label>
+                    <input type="text" class="ipt-kg" readonly style="background:#E2E8F0; font-weight:700; color:#047857;">
                 </div>
                 <div style="padding-top: 18px;">
                     <button type="button" class="btn-danger" style="padding: 10px 12px;" onclick="removerLinhaProdutoModal('${rowId}')">✕</button>
@@ -2463,6 +2735,22 @@ CREATE TABLE IF NOT EXISTS pedidos (
 
             if (prodIdPadrao) {
                 row.querySelector('.sel-prod').value = prodIdPadrao;
+            }
+            if (precoPadrao === null) {
+                aoSelecionarProdutoNaLinhaModal(rowId);
+            } else {
+                atualizarSacosKgCalculoModal(rowId);
+            }
+        }
+
+        function aoSelecionarProdutoNaLinhaModal(rowId) {
+            const row = document.getElementById(rowId);
+            if (!row) return;
+
+            const prodId = parseInt(row.querySelector('.sel-prod').value);
+            const prodObj = produtos.find(p => p.id === prodId);
+            if (prodObj) {
+                row.querySelector('.ipt-preco').value = prodObj.precoUnitario || 0;
             }
             atualizarSacosKgCalculoModal(rowId);
         }
@@ -2485,11 +2773,13 @@ CREATE TABLE IF NOT EXISTS pedidos (
 
             const prodId = parseInt(row.querySelector('.sel-prod').value);
             const sacos = parseFloat(row.querySelector('.ipt-sacos').value) || 0;
+            const preco = parseFloat(row.querySelector('.ipt-preco').value) || 0;
             const prodObj = produtos.find(p => p.id === prodId);
 
             if (prodObj) {
                 const totalKg = sacos * prodObj.pesoSaco;
-                row.querySelector('.ipt-kg').value = new Intl.NumberFormat('pt-BR').format(totalKg) + ' kg';
+                const totalRs = sacos * preco;
+                row.querySelector('.ipt-kg').value = `${formatMoeda(totalRs)} (${formatNum(totalKg)} kg)`;
             }
         }
 
@@ -2506,6 +2796,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
             const rota = document.getElementById('edit-pedido-rota').value;
             const cidade = document.getElementById('edit-pedido-cidade').value;
             const cliente = document.getElementById('edit-pedido-cliente').value;
+            const formaPagamento = document.getElementById('edit-pedido-pagamento').value;
             const status = document.getElementById('edit-pedido-status').value;
 
             if (!cidade || cidade.includes('Nenhuma cidade')) {
@@ -2515,20 +2806,27 @@ CREATE TABLE IF NOT EXISTS pedidos (
 
             const rows = document.querySelectorAll('#edit-produtos-container .product-item-row');
             let itens = [];
+            let valorTotalPedido = 0;
 
             rows.forEach(row => {
                 const prodId = parseInt(row.querySelector('.sel-prod').value);
                 const quantidadeSacos = parseFloat(row.querySelector('.ipt-sacos').value) || 0;
+                const precoUnitario = parseFloat(row.querySelector('.ipt-preco').value) || 0;
                 const prodObj = produtos.find(p => p.id === prodId);
 
                 if (prodObj && quantidadeSacos > 0) {
+                    const subtotalRs = quantidadeSacos * precoUnitario;
+                    valorTotalPedido += subtotalRs;
+
                     itens.push({
                         produtoId: prodObj.id,
                         produtoNome: prodObj.nome,
                         categoria: prodObj.categoria,
                         pesoSaco: prodObj.pesoSaco,
+                        precoUnitario: precoUnitario,
                         quantidadeSacos: quantidadeSacos,
-                        pesoTotalKg: quantidadeSacos * prodObj.pesoSaco
+                        pesoTotalKg: quantidadeSacos * prodObj.pesoSaco,
+                        valorTotalKg: subtotalRs
                     });
                 }
             });
@@ -2542,6 +2840,8 @@ CREATE TABLE IF NOT EXISTS pedidos (
                 rota,
                 cidade,
                 cliente,
+                formaPagamento,
+                valorTotal: valorTotalPedido,
                 status,
                 itens
             };
@@ -2552,7 +2852,15 @@ CREATE TABLE IF NOT EXISTS pedidos (
             };
 
             if (modoConectadoBD && supabaseClient) {
-                await supabaseClient.from('pedidos').update(pedidoAtualizado).eq('id', id);
+                await supabaseClient.from('pedidos').update({
+                    rota,
+                    cidade,
+                    cliente,
+                    forma_pagamento: formaPagamento,
+                    valor_total: valorTotalPedido,
+                    status,
+                    itens
+                }).eq('id', id);
             }
 
             fecharModalEditarPedido();
@@ -2562,7 +2870,6 @@ CREATE TABLE IF NOT EXISTS pedidos (
 
         function atualizarSistema() {
             salvarArmazenamentoLocal();
-            const formatNum = (val) => new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(val);
 
             document.getElementById('select-pedido-cliente').innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
             const opcoesTodasCidades = cidades.map(c => `<option value="${c.nome} - ${c.uf}">${c.nome} - ${c.uf} (${c.rota})</option>`).join('');
@@ -2571,35 +2878,40 @@ CREATE TABLE IF NOT EXISTS pedidos (
             aoMudarRotaNoPedido();
 
             const container = document.getElementById('produtos-pedido-container');
-            container.innerHTML = '';
-            adicionarLinhaProduto();
+            if (container && container.children.length === 0) {
+                adicionarLinhaProduto();
+            }
 
             const rotasLista = ["Rota 01", "Rota 02", "Rota 03", "Rota 04", "Rota 05", "Rota 06", "Rota 07", "Rota 08", "Rota 09"];
-            const consolidadoRotas = rotasLista.map(r => ({ rota: r, sal: 0, racao: 0, soja: 0, totalSacos: 0 }));
+            const consolidadoRotas = rotasLista.map(r => ({ rota: r, sal: 0, racao: 0, nucleo: 0, atacado: 0, totalSacos: 0 }));
 
-            let totalSal = 0, totalRacao = 0, totalSoja = 0, totalSacosGeral = 0;
+            let totalSal = 0, totalRacao = 0, totalNucleo = 0, totalAtacado = 0, totalSacosGeral = 0;
 
             pedidos.forEach(p => {
-                // Pedidos Finalizados saem do cálculo da Demanda Mensal/Pendente
+                // Apenas pedidos não finalizados entram na demanda pendente/ativa
                 if (p.status === 'Finalizado') return;
 
                 p.itens.forEach(item => {
                     totalSacosGeral += item.quantidadeSacos;
-                    if (item.categoria === 'Sal Nutricional') totalSal += item.pesoTotalKg;
-                    else if (item.categoria === 'Ração') totalRacao += item.pesoTotalKg;
-                    else if (item.categoria === 'Farelo de Soja') totalSoja += item.pesoTotalKg;
+                    const cat = item.categoria || '';
+
+                    if (cat === 'Sal Mineral' || cat === 'Sal Nutricional') totalSal += item.pesoTotalKg;
+                    else if (cat === 'Ração') totalRacao += item.pesoTotalKg;
+                    else if (cat === 'Núcleo') totalNucleo += item.pesoTotalKg;
+                    else if (cat === 'Atacado' || cat === 'Farelo de Soja') totalAtacado += item.pesoTotalKg;
 
                     const rObj = consolidadoRotas.find(r => r.rota === p.rota);
                     if (rObj) {
                         rObj.totalSacos += item.quantidadeSacos;
-                        if (item.categoria === 'Sal Nutricional') rObj.sal += item.pesoTotalKg;
-                        else if (item.categoria === 'Ração') rObj.racao += item.pesoTotalKg;
-                        else if (item.categoria === 'Farelo de Soja') rObj.soja += item.pesoTotalKg;
+                        if (cat === 'Sal Mineral' || cat === 'Sal Nutricional') rObj.sal += item.pesoTotalKg;
+                        else if (cat === 'Ração') rObj.racao += item.pesoTotalKg;
+                        else if (cat === 'Núcleo') rObj.nucleo += item.pesoTotalKg;
+                        else if (cat === 'Atacado' || cat === 'Farelo de Soja') rObj.atacado += item.pesoTotalKg;
                     }
                 });
             });
 
-            const totalGeral = totalSal + totalRacao + totalSoja;
+            const totalGeral = totalSal + totalRacao + totalNucleo + totalAtacado;
             const mediaSemanal = totalGeral / 4.3;
 
             document.getElementById('kpi-total-mes').innerText = formatNum(totalGeral) + ' kg';
@@ -2612,7 +2924,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
             const tbodyDemanda = document.querySelector('#table-demanda tbody');
             tbodyDemanda.innerHTML = '';
             consolidadoRotas.forEach(item => {
-                const rowTotal = item.sal + item.racao + item.soja;
+                const rowTotal = item.sal + item.racao + item.nucleo + item.atacado;
                 const cidadesDaRota = cidades.filter(c => c.rota === item.rota).map(c => c.nome).join(', ') || '<em>Nenhuma cadastrada</em>';
 
                 const tr = document.createElement('tr');
@@ -2621,7 +2933,8 @@ CREATE TABLE IF NOT EXISTS pedidos (
                     <td style="font-size: 12px; color: #475569;">${cidadesDaRota}</td>
                     <td>${formatNum(item.sal)}</td>
                     <td>${formatNum(item.racao)}</td>
-                    <td>${formatNum(item.soja)}</td>
+                    <td>${formatNum(item.nucleo)}</td>
+                    <td>${formatNum(item.atacado)}</td>
                     <td><strong>${formatNum(rowTotal)}</strong></td>
                     <td><strong>${formatNum(item.totalSacos)}</strong></td>
                     <td>${formatNum(rowTotal / 4.3)}</td>
@@ -2634,12 +2947,16 @@ CREATE TABLE IF NOT EXISTS pedidos (
             pedidos.forEach(p => {
                 let totalSacosPedido = 0;
                 let totalKgPedido = 0;
+                let totalRsPedido = p.valorTotal || 0;
 
                 let listaProdutosHtml = '<ul class="prod-sublist">';
                 p.itens.forEach(it => {
+                    const preco = it.precoUnitario || 0;
+                    const subtotalItem = it.valorTotalKg || (it.quantidadeSacos * preco);
                     totalSacosPedido += it.quantidadeSacos;
                     totalKgPedido += it.pesoTotalKg;
-                    listaProdutosHtml += `<li><strong>${it.quantidadeSacos}x</strong> ${it.produtoNome} <span style="color:#666; font-size:11px;">(${formatNum(it.pesoTotalKg)} kg)</span></li>`;
+                    
+                    listaProdutosHtml += `<li><strong>${it.quantidadeSacos}x</strong> ${it.produtoNome} <span style="color:#666; font-size:11px;">(${formatNum(it.pesoTotalKg)} kg - ${formatMoeda(subtotalItem)})</span></li>`;
                 });
                 listaProdutosHtml += '</ul>';
 
@@ -2659,8 +2976,9 @@ CREATE TABLE IF NOT EXISTS pedidos (
                     <td><strong>${p.cidade}</strong></td>
                     <td>${p.cliente}</td>
                     <td>${listaProdutosHtml}</td>
-                    <td><strong>${formatNum(totalSacosPedido)} sacos/bags</strong></td>
-                    <td><strong>${formatNum(totalKgPedido)} kg</strong></td>
+                    <td><span class="badge" style="background:#E0F2FE; color:#0369A1;">💳 ${p.formaPagamento || 'A Prazo / A Combinar'}</span></td>
+                    <td><strong>${formatNum(totalKgPedido)} kg</strong> <br><span style="font-size:11px; color:#64748B;">(${formatNum(totalSacosPedido)} sacos)</span></td>
+                    <td><strong style="color: #059669; font-size:15px;">${formatMoeda(totalRsPedido)}</strong></td>
                     <td>
                         <div style="display: flex; gap: 6px;">
                             <button class="btn-warning" onclick="editarPedido(${p.id})">Editar</button>
@@ -2691,55 +3009,95 @@ CREATE TABLE IF NOT EXISTS pedidos (
             tbodyProdutos.innerHTML = '';
             produtos.forEach((p, idx) => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${idx + 1}</td><td><strong>${p.nome}</strong></td><td><span class="badge">${p.categoria}</span></td><td>${p.pesoSaco} kg/saco</td><td><button class="btn-danger" onclick="excluirProduto(${p.id})">Excluir</button></td>`;
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td><strong>${p.nome}</strong></td>
+                    <td><span class="badge">${p.categoria}</span></td>
+                    <td>${p.pesoSaco} kg/saco</td>
+                    <td><strong style="color:#059669;">${formatMoeda(p.precoUnitario)}</strong></td>
+                    <td>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="btn-warning" onclick="editarProduto(${p.id})">Editar</button>
+                            <button class="btn-danger" onclick="excluirProduto(${p.id})">Excluir</button>
+                        </div>
+                    </td>
+                `;
                 tbodyProdutos.appendChild(tr);
             });
 
             exibirRelatorioRota(document.getElementById('relatorio-select-rota').value || 'Rota 01');
-            renderizarGraficos(consolidadoRotas, totalSal, totalRacao, totalSoja);
+            renderizarGraficos(consolidadoRotas, totalSal, totalRacao, totalNucleo, totalAtacado);
         }
 
-        function renderizarGraficos(consolidadoRotas, sal, racao, soja) {
+        function renderizarGraficos(consolidadoRotas, sal, racao, nucleo, atacado) {
             const labelsRotas = consolidadoRotas.map(r => r.rota);
-            const dataTotaisRotas = consolidadoRotas.map(r => r.sal + r.racao + r.soja);
+            const dataTotaisRotas = consolidadoRotas.map(r => r.sal + r.racao + r.nucleo + r.atacado);
 
-            if (barChart) barChart.destroy();
-            const ctxBar = document.getElementById('barChartDemand').getContext('2d');
-            barChart = new Chart(ctxBar, {
-                type: 'bar',
-                data: {
-                    labels: labelsRotas,
-                    datasets: [{
-                        label: 'Demanda Pendente (kg)',
-                        data: dataTotaisRotas,
-                        backgroundColor: '#1F4E78',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
-            });
+            if (barChart) {
+                barChart.data.labels = labelsRotas;
+                barChart.data.datasets[0].data = dataTotaisRotas;
+                barChart.update();
+            } else {
+                const ctxBar = document.getElementById('barChartDemand').getContext('2d');
+                barChart = new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: labelsRotas,
+                        datasets: [{
+                            label: 'Demanda Pendente (kg)',
+                            data: dataTotaisRotas,
+                            backgroundColor: '#1F4E78',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        animation: {
+                            duration: 700,
+                            easing: 'easeInOutBack',
+                            // Configuração de atraso sequencial (onda): 200ms de intervalo entre cada coluna (Rota 01, Rota 02, Rota 03...)
+                            delay: (context) => {
+                                let delay = 0;
+                                if (context.type === 'data' && context.mode === 'default') {
+                                    delay = context.dataIndex * 200;
+                                }
+                                return delay;
+                            }
+                        }
+                    }
+                });
+            }
 
-            if (pieChart) pieChart.destroy();
-            const ctxPie = document.getElementById('pieChartMix').getContext('2d');
-            pieChart = new Chart(ctxPie, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Sal Nutricional', 'Ração', 'Farelo de Soja'],
-                    datasets: [{
-                        data: [sal, racao, soja],
-                        backgroundColor: ['#1F4E78', '#2E75B6', '#5B9BD5']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } }
-                }
-            });
+            if (pieChart) {
+                pieChart.data.datasets[0].data = [sal, racao, nucleo, atacado];
+                pieChart.update({
+                    duration: 800,
+                    easing: 'easeOutQuart'
+                });
+            } else {
+                const ctxPie = document.getElementById('pieChartMix').getContext('2d');
+                pieChart = new Chart(ctxPie, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Sal Mineral', 'Ração', 'Núcleo', 'Atacado'],
+                        datasets: [{
+                            data: [sal, racao, nucleo, atacado],
+                            backgroundColor: ['#1F4E78', '#2E75B6', '#D97706', '#10B981']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } },
+                        animation: {
+                            duration: 1000,
+                            easing: 'easeOutQuart'
+                        }
+                    }
+                });
+            }
         }
     </script>
 </body>
