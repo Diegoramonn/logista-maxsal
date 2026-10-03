@@ -1648,7 +1648,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
             }
         }
 
-        // Timer para Atualização Automática do Dashboard de 2 em 2 minutos com efeito visual no gráfico
+        // Timer para Atualização Automática do Dashboard de 15 em 15 minutos com efeito visual no gráfico
         function iniciarAutoAtualizacaoDashboard() {
             if (autoRefreshInterval) clearInterval(autoRefreshInterval);
 
@@ -1681,7 +1681,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
                 }
 
                 atualizarSistema();
-            }, 120000);
+            }, 900000);
         }
 
         function atualizarStatusVisualBD(online) {
